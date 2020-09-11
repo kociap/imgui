@@ -1009,73 +1009,16 @@ void ImGuiStyle::ScaleAllSizes(float scale_factor)
     MouseCursorScale = ImFloor(MouseCursorScale * scale_factor);
 }
 
-ImGuiIO::ImGuiIO()
+ImGuiIO::ImGuiIO(): GetClipboardTextFn(GetClipboardTextFn_DefaultImpl), SetClipboardTextFn(SetClipboardTextFn_DefaultImpl)
 {
-    // Most fields are initialized with zero
-    memset(this, 0, sizeof(*this));
     IM_ASSERT(IM_ARRAYSIZE(ImGuiIO::MouseDown) == ImGuiMouseButton_COUNT && IM_ARRAYSIZE(ImGuiIO::MouseClicked) == ImGuiMouseButton_COUNT); // Our pre-C++11 IM_STATIC_ASSERT() macros triggers warning on modern compilers so we don't use it here.
 
-    // Settings
-    ConfigFlags = ImGuiConfigFlags_None;
-    BackendFlags = ImGuiBackendFlags_None;
-    DisplaySize = ImVec2(-1.0f, -1.0f);
-    DeltaTime = 1.0f / 60.0f;
-    IniSavingRate = 5.0f;
-    IniFilename = "imgui.ini";
-    LogFilename = "imgui_log.txt";
-    MouseDoubleClickTime = 0.30f;
-    MouseDoubleClickMaxDist = 6.0f;
-    for (int i = 0; i < ImGuiKey_COUNT; i++)
+    for (int i = 0; i < ImGuiKey_COUNT; i++) {
         KeyMap[i] = -1;
-    KeyRepeatDelay = 0.275f;
-    KeyRepeatRate = 0.050f;
-    UserData = NULL;
+    }
 
-    Fonts = NULL;
-    FontGlobalScale = 1.0f;
-    FontDefault = NULL;
-    FontAllowUserScaling = false;
-    DisplayFramebufferScale = ImVec2(1.0f, 1.0f);
-
-    // Docking options (when ImGuiConfigFlags_DockingEnable is set)
-    ConfigDockingNoSplit = false;
-    ConfigDockingWithShift = false;
-    ConfigDockingAlwaysTabBar = false;
-    ConfigDockingTransparentPayload = false;
-
-    // Viewport options (when ImGuiConfigFlags_ViewportsEnable is set)
-    ConfigViewportsNoAutoMerge = false;
-    ConfigViewportsNoTaskBarIcon = false;
-    ConfigViewportsNoDecoration = true;
-    ConfigViewportsNoDefaultParent = false;
-
-    // Miscellaneous options
-    MouseDrawCursor = false;
-#ifdef __APPLE__
-    ConfigMacOSXBehaviors = true;  // Set Mac OS X style defaults based on __APPLE__ compile time flag
-#else
-    ConfigMacOSXBehaviors = false;
-#endif
-    ConfigInputTextCursorBlink = true;
-    ConfigWindowsResizeFromEdges = true;
-    ConfigWindowsMoveFromTitleBarOnly = false;
-    ConfigWindowsMemoryCompactTimer = 60.0f;
-
-    // Platform Functions
-    BackendPlatformName = BackendRendererName = NULL;
-    BackendPlatformUserData = BackendRendererUserData = BackendLanguageUserData = NULL;
-    GetClipboardTextFn = GetClipboardTextFn_DefaultImpl;   // Platform dependent default implementations
-    SetClipboardTextFn = SetClipboardTextFn_DefaultImpl;
-    ClipboardUserData = NULL;
-
-#ifndef IMGUI_DISABLE_OBSOLETE_FUNCTIONS
-    RenderDrawListsFn = NULL;
-#endif
-
-    // Input (NB: we already have memset zero the entire structure!)
     MousePos = ImVec2(-FLT_MAX, -FLT_MAX);
     MousePosPrev = ImVec2(-FLT_MAX, -FLT_MAX);
-    MouseDragThreshold = 6.0f;
     for (int i = 0; i < IM_ARRAYSIZE(MouseDownDuration); i++) MouseDownDuration[i] = MouseDownDurationPrev[i] = -1.0f;
     for (int i = 0; i < IM_ARRAYSIZE(KeysDownDuration); i++) KeysDownDuration[i]  = KeysDownDurationPrev[i] = -1.0f;
     for (int i = 0; i < IM_ARRAYSIZE(NavInputsDownDuration); i++) NavInputsDownDuration[i] = -1.0f;
@@ -3335,7 +3278,7 @@ ImGuiPlatformIO& ImGui::GetPlatformIO()
     return GImGui->PlatformIO;
 }
 
-// Same value as passed to the old io.RenderDrawListsFn function. Valid after Render() and until the next call to NewFrame()
+// Valid after Render() and until the next call to NewFrame()
 ImDrawData* ImGui::GetDrawData()
 {
     ImGuiContext& g = *GImGui;
@@ -4138,11 +4081,11 @@ void ImGui::Shutdown(ImGuiContext* context)
         return;
 
     // Save settings (unless we haven't attempted to load them: CreateContext/DestroyContext without a call to NewFrame shouldn't save an empty file)
-    if (g.SettingsLoaded && g.IO.IniFilename != NULL)
+    if (g.SettingsLoaded && g.IO.IniFilename.size_bytes() != 0)
     {
         ImGuiContext* backup_context = GImGui;
         SetCurrentContext(context);
-        SaveIniSettingsToDisk(g.IO.IniFilename);
+        SaveIniSettingsToDisk(g.IO.IniFilename.c_str());
         SetCurrentContext(backup_context);
     }
 
@@ -4568,12 +4511,6 @@ void ImGui::Render()
         g.IO.MetricsRenderVertices += viewport->DrawData->TotalVtxCount;
         g.IO.MetricsRenderIndices += viewport->DrawData->TotalIdxCount;
     }
-
-    // (Legacy) Call the Render callback function. The current prefer way is to let the user retrieve GetDrawData() and call the render function themselves.
-#ifndef IMGUI_DISABLE_OBSOLETE_FUNCTIONS
-    if (g.Viewports[0]->DrawData->CmdListsCount > 0 && g.IO.RenderDrawListsFn != NULL)
-        g.IO.RenderDrawListsFn(g.Viewports[0]->DrawData);
-#endif
 }
 
 // Calculate text size. Text can be multi-line. Optionally ignore text after a ## marker.
@@ -7531,9 +7468,6 @@ static void ImGui::ErrorCheckNewFrameSanityChecks()
             IM_ASSERT((g.Viewports[0]->PlatformUserData != NULL || g.Viewports[0]->PlatformHandle != NULL) && "Platform init didn't setup main viewport.");
             if (g.IO.ConfigDockingTransparentPayload && (g.IO.ConfigFlags & ImGuiConfigFlags_DockingEnable))
                 IM_ASSERT(g.PlatformIO.Platform_SetWindowAlpha != NULL && "Platform_SetWindowAlpha handler is required to use io.ConfigDockingTransparent!");
-#ifndef IMGUI_DISABLE_OBSOLETE_FUNCTIONS
-            IM_ASSERT(g.IO.RenderDrawListsFn == NULL);  // Call ImGui::Render() then pass ImGui::GetDrawData() yourself to your render function!
-#endif
         }
         else
         {
@@ -10531,8 +10465,9 @@ void ImGui::UpdateSettings()
     if (!g.SettingsLoaded)
     {
         IM_ASSERT(g.SettingsWindows.empty());
-        if (g.IO.IniFilename)
-            LoadIniSettingsFromDisk(g.IO.IniFilename);
+        if (g.IO.IniFilename.size_bytes() != 0) {
+            LoadIniSettingsFromDisk(g.IO.IniFilename.c_str());
+        }
         g.SettingsLoaded = true;
     }
 
@@ -10542,10 +10477,11 @@ void ImGui::UpdateSettings()
         g.SettingsDirtyTimer -= g.IO.DeltaTime;
         if (g.SettingsDirtyTimer <= 0.0f)
         {
-            if (g.IO.IniFilename != NULL)
-                SaveIniSettingsToDisk(g.IO.IniFilename);
-            else
+            if (g.IO.IniFilename.size_bytes() != 0) {
+                SaveIniSettingsToDisk(g.IO.IniFilename.c_str());
+            } else {
                 g.IO.WantSaveIniSettings = true;  // Let user know they can call SaveIniSettingsToMemory(). user will need to clear io.WantSaveIniSettings themselves.
+            }
             g.SettingsDirtyTimer = 0.0f;
         }
     }
@@ -15919,10 +15855,11 @@ void ImGui::ShowMetricsWindow(bool* p_open)
             ImGui::SaveIniSettingsToMemory();
         ImGui::SameLine();
         if (ImGui::SmallButton("Save to disk"))
-            ImGui::SaveIniSettingsToDisk(g.IO.IniFilename);
+            ImGui::SaveIniSettingsToDisk(g.IO.IniFilename.c_str());
         ImGui::SameLine();
-        if (g.IO.IniFilename)
-            ImGui::Text("\"%s\"", g.IO.IniFilename);
+        if (g.IO.IniFilename.size_bytes() != 0) {
+            ImGui::Text("\"%s\"", g.IO.IniFilename.c_str());
+        }
         else
             ImGui::TextUnformatted("<NULL>");
         ImGui::Text("SettingsDirtyTimer %.2f", g.SettingsDirtyTimer);
