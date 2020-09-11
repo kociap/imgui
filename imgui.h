@@ -1563,7 +1563,7 @@ struct ImGuiIO
     // See ImGuiBackendFlags_ enum. Set by back-end (imgui_impl_xxx files or custom back-end) to communicate features supported by the back-end.
     ImGuiBackendFlags  BackendFlags = ImGuiBackendFlags_None;              
     // Main display size, in pixels. This is for the default viewport.
-    ImVec2      DisplaySize = ImVec2(-1.0f, -1.0f);;                    
+    ImVec2      DisplaySize = ImVec2(-1.0f, -1.0f);
     // Time elapsed since last frame, in seconds.
     float       DeltaTime = 1.0f / 60.0f;     
     // Minimum time between saving positions/sizes to .ini file, in seconds.
@@ -1571,7 +1571,7 @@ struct ImGuiIO
     // Path to .ini file. Set to empty string to disable automatic .ini loading/saving, if e.g. you want to manually load/save from memory.
     anton::String IniFilename;                  
     // Path to .log file (default parameter to ImGui::LogToFile when no file is specified).
-    const char* LogFilename "imgui_log.txt";
+    const char* LogFilename = "imgui_log.txt";
     // Time for a double-click, in seconds.
     float       MouseDoubleClickTime = 0.30f;          
     // Distance threshold to stay in to validate a double-click, in pixels.
@@ -1625,7 +1625,7 @@ struct ImGuiIO
     // Request ImGui to draw a mouse cursor for you (if you are on a platform without a mouse cursor). Cannot be easily renamed to 'io.ConfigXXX' because this is frequently used by back-end implementations.
     bool        MouseDrawCursor = false;          
     // OS X style: Text editing cursor movement using Alt instead of Ctrl, Shortcuts using Cmd/Super instead of Ctrl, Line/Text Start and End using Cmd+Arrows instead of Home/End, Double click selects by word instead of selecting whole text, Multi-selection in lists uses Cmd/Super instead of Ctrl (was called io.OptMacOSXBehaviors prior to 1.63)
-    bool        ConfigMacOSXBehaviors = defined(__APPLE__); 
+    bool        ConfigMacOSXBehaviors = false; // We don't want that 
     // Set to false to disable blinking cursor, for users who consider it distracting. (was called: io.OptCursorBlink prior to 1.63)
     bool        ConfigInputTextCursorBlink = true;           
     // Enable resizing of windows from their edges and from the lower-left corner. This requires (io.BackendFlags & ImGuiBackendFlags_HasMouseCursors) because it needs mouse cursor feedback. (This used to be a per-window ImGuiWindowFlags_ResizeFromAnySide flag)
