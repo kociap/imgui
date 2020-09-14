@@ -38,13 +38,7 @@ Index of this file:
 
 #pragma once
 
-// Configuration file with compile-time options (edit imconfig.h or #define IMGUI_USER_CONFIG to your own filename)
-#ifdef IMGUI_USER_CONFIG
-#include IMGUI_USER_CONFIG
-#endif
-#if !defined(IMGUI_DISABLE_INCLUDE_IMCONFIG_H) || defined(IMGUI_INCLUDE_IMCONFIG_H)
 #include "imconfig.h"
-#endif
 
 #ifndef IMGUI_DISABLE
 
@@ -75,16 +69,6 @@ namespace imgui = ImGui;
 #define IMGUI_CHECKVERSION()        ImGui::DebugCheckVersionAndDataLayout(IMGUI_VERSION, sizeof(ImGuiIO), sizeof(ImGuiStyle), sizeof(ImVec2), sizeof(ImVec4), sizeof(ImDrawVert), sizeof(ImDrawIdx))
 #define IMGUI_HAS_VIEWPORT          1 // Viewport WIP branch
 #define IMGUI_HAS_DOCK              1 // Docking WIP branch
-
-// Define attributes of all API symbols declarations (e.g. for DLL under Windows)
-// IMGUI_API is used for core imgui functions, IMGUI_IMPL_API is used for the default bindings files (imgui_impl_xxx.h)
-// Using dear imgui via a shared library is not recommended, because we don't guarantee backward nor forward ABI compatibility (also function call overhead, as dear imgui is a call-heavy API)
-#ifndef IMGUI_API
-#define IMGUI_API
-#endif
-#ifndef IMGUI_IMPL_API
-#define IMGUI_IMPL_API              IMGUI_API
-#endif
 
 // Helper Macros
 #ifndef IM_ASSERT

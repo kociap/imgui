@@ -4,7 +4,10 @@
 
 #pragma once
 
-#include "imgui.h"      // IMGUI_API, ImFontAtlas
+#include <stdint.h>
+#include <imconfig.h>
+
+struct ImFontAtlas;
 
 namespace ImGuiFreeType
 {
