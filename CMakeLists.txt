@@ -8,7 +8,13 @@ FetchContent_Declare(
     GIT_REPOSITORY https://github.com/kociap/anton_core.git
 )
 FetchContent_MakeAvailable(anton_core)
-    
+
+set(CMAKE_DISABLE_FIND_PACKAGE_HarfBuzz TRUE)
+set(CMAKE_DISABLE_FIND_PACKAGE_PNG TRUE)
+set(CMAKE_DISABLE_FIND_PACKAGE_ZLIB TRUE)
+set(CMAKE_DISABLE_FIND_PACKAGE_BZip2 TRUE)
+set(SKIP_INSTALL_ALL TRUE)
+
 FetchContent_Declare(
     freetype
     GIT_REPOSITORY https://github.com/kociap/FreeType.git
