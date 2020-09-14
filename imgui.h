@@ -61,6 +61,12 @@ Index of this file:
 #include <anton/math/vec2.hpp>
 #include <anton/math/vec4.hpp>
 #include <anton/string.hpp>
+#include <anton/string_view.hpp>
+
+#include <misc/freetype/imgui_freetype.h>
+
+namespace ImGui {}
+namespace imgui = ImGui;
 
 // Version
 // (Integer encoded as XYYZZ for use in #if preprocessor conditionals. Work in progress versions typically starts at XYY99 then bounce up to XYY00, XYY01 etc. when release tagging happens)
@@ -417,6 +423,8 @@ namespace ImGui
     IMGUI_API ImGuiID       GetID(const void* ptr_id);
 
     // Widgets: Text
+
+    void Text(anton::String_View text);
     IMGUI_API void          TextUnformatted(const char* text, const char* text_end = NULL); // raw text without formatting. Roughly equivalent to Text("%s", text) but: A) doesn't require null terminated string if 'text_end' is specified, B) it's faster, no memory copy is done, no buffer size limits, recommended for long chunks of text.
     IMGUI_API void          Text(const char* fmt, ...)                                      IM_FMTARGS(1); // formatted text
     IMGUI_API void          TextV(const char* fmt, va_list args)                            IM_FMTLIST(1);

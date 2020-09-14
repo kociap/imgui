@@ -236,6 +236,10 @@ void ImGui::TextEx(const char* text, const char* text_end, ImGuiTextFlags flags)
     }
 }
 
+void imgui::Text(anton::String_View const text) {
+    TextEx(text.bytes_begin(), text.bytes_end(), ImGuiTextFlags_NoWidthForLargeClippedText);
+}
+
 void ImGui::TextUnformatted(const char* text, const char* text_end)
 {
     TextEx(text, text_end, ImGuiTextFlags_NoWidthForLargeClippedText);
