@@ -684,7 +684,7 @@ bool ImGui::ButtonEx(const char* label, const ImVec2& size_arg, ImGuiButtonFlags
     return pressed;
 }
 
-bool imgui::Button(anton::String_View label, anton::Vec2 const& size) {
+bool imgui::Button(anton::String_View label, anton::math::Vec2 const& size) {
     // TODO: Allocates a string to ensure the text we pass to ButtonEx is null-terminated
     anton::String l{label};
     return ButtonEx(l.c_str(), size, ImGuiButtonFlags_None);
