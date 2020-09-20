@@ -59,9 +59,6 @@ Index of this file:
 
 #include <misc/freetype/imgui_freetype.h>
 
-namespace ImGui {}
-namespace imgui = ImGui;
-
 // Version
 // (Integer encoded as XYYZZ for use in #if preprocessor conditionals. Work in progress versions typically starts at XYY99 then bounce up to XYY00, XYY01 etc. when release tagging happens)
 #define IMGUI_VERSION               "1.79 WIP"
@@ -521,6 +518,40 @@ namespace ImGui
     IMGUI_API bool          ColorPicker4(const char* label, float col[4], ImGuiColorEditFlags flags = 0, const float* ref_col = NULL);
     IMGUI_API bool          ColorButton(const char* desc_id, const ImVec4& col, ImGuiColorEditFlags flags = 0, ImVec2 size = ImVec2(0, 0)); // display a colored square/button, hover for details, return true when pressed.
     IMGUI_API void          SetColorEditOptions(ImGuiColorEditFlags flags);                     // initialize current options (generally on application startup) if you want to select a default format, picker type, etc. User will be able to change many settings, unless you pass the _NoOptions flag to your calls.
+
+    // TODO: Add default_open (equivalent of ImGuiTreeNodeFlags_DefaultOpen)
+    struct Outliner_Tree_Node_Options {
+        // If a node is a leaf node, the open/collapse arrow won't be displayed
+        bool leaf = false;
+        // Whether this node should be open when first displayed or not
+        bool open_by_default = false;
+    };
+
+    struct Outliner_Tree_Node_Style {
+        Vec4 text_color;
+        Vec4 background;
+        Vec4 background_hovered;
+        Vec4 background_active;
+    };
+
+    Outliner_Tree_Node_Style get_outliner_tree_node_style();
+
+    // outliner_tree_node
+    // Displays a tree node that contains an arrow and a label. 
+    // The arrow may be clicked to open/close the node to show its contents (the node will open on click release).
+    // The node spans the whole width of its parent window, but the contents are indented. 
+    // If the node is a leaf (options.leaf set to true), the arrow is hidden.
+    //
+    // If the node is open, you must call outliner_tree_pop() after you're done displaying the node contents.
+    // If style is not provided, uses the colors from the global theme (ImGuiCol_outliner_node_bg, etc.).
+    // Returns true when the node is open. 
+    //
+    bool outliner_tree_node(anton::String_View label, u32 id, Outliner_Tree_Node_Options const& options, Outliner_Tree_Node_Style const& style);
+    bool outliner_tree_node(anton::String_View label, u32 id, Outliner_Tree_Node_Options const& options);
+
+    // outliner_tree_pop
+    //
+    void outliner_tree_pop();
 
     // Widgets: Trees
     // - TreeNode functions return true when the node is open, in which case you need to also call TreePop() when you are finished displaying the tree node contents.
@@ -1235,6 +1266,9 @@ enum ImGuiCol_
     ImGuiCol_NavWindowingHighlight, // Highlight window when using CTRL+TAB
     ImGuiCol_NavWindowingDimBg,     // Darken/colorize entire screen behind the CTRL+TAB window list, when active
     ImGuiCol_ModalWindowDimBg,      // Darken/colorize entire screen behind a modal window, when one is active
+    ImGuiCol_outliner_node_bg,
+    ImGuiCol_outliner_node_bg_hovered,
+    ImGuiCol_outliner_node_bg_active,
     ImGuiCol_COUNT
 
     // Obsolete names (will be removed)

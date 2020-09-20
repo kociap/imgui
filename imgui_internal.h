@@ -40,10 +40,13 @@ Index of this file:
 #error Must include imgui.h before imgui_internal.h
 #endif
 
+#include <imconfig.h>
 #include <stdio.h>      // FILE*, sscanf
 #include <stdlib.h>     // NULL, malloc, free, qsort, atoi, atof
 #include <math.h>       // sqrtf, fabsf, fmodf, powf, floorf, ceilf, cosf, sinf
 #include <limits.h>     // INT_MIN, INT_MAX
+#include <anton/hashing/murmurhash2.hpp>
+#include <anton/array.hpp>
 
 // Visual Studio warnings
 #ifdef _MSC_VER
@@ -1645,6 +1648,9 @@ struct IMGUI_API ImGuiWindowTempData
     float                   CurrLineTextBaseOffset; // Baseline offset (0.0f by default on a new line, generally == style.FramePadding.y when a framed item has been added).
     float                   PrevLineTextBaseOffset;
     ImVec1                  Indent;                 // Indentation / start position from left of window (increased by TreePush/TreePop, etc.)
+    // Array of indent values that have been added to Indent by outliner_tree_node functions 
+    // that we will then use to decrease the Indent as we pop the nodes
+    anton::Array<imgui::f32> indent_stack;
     ImVec1                  ColumnsOffset;          // Offset to the current column (if ColumnsCurrent > 0). FIXME: This and the above should be a stack to allow use cases like Tree->Column->Tree. Need revamp columns API.
     ImVec1                  GroupOffset;
 
