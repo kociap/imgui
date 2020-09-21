@@ -2454,6 +2454,9 @@ const char* ImGui::GetStyleColorName(ImGuiCol idx)
     case ImGuiCol_NavWindowingHighlight: return "NavWindowingHighlight";
     case ImGuiCol_NavWindowingDimBg: return "NavWindowingDimBg";
     case ImGuiCol_ModalWindowDimBg: return "ModalWindowDimBg";
+    case ImGuiCol_outliner_node_bg: return "outliner_node_bg";
+    case ImGuiCol_outliner_node_bg_hovered: return "outliner_node_bg_hovered";
+    case ImGuiCol_outliner_node_bg_active: return "outliner_node_bg_active";
     }
     IM_ASSERT(0);
     return "Unknown";
