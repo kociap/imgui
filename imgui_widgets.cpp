@@ -5650,8 +5650,9 @@ namespace ImGui {
         // if (flags & ImGuiTreeNodeFlags_ClipLabelForTrailingButton) {
         //     frame_bb.Max.x -= g.FontSize + imgui_style.FramePadding.x;
         // }
-            
-        RenderTextClipped(text_pos, frame_bb.Max, label.bytes_begin(), label.bytes_end(), &label_size);
+        
+        Rect_f32 const clip_rect{frame_bb.Min.x, frame_bb.Min.y, frame_bb.Max.x, frame_bb.Max.y};
+        render_text_clipped(label, text_pos, clip_rect, text_color);
 
         if (is_open) {
             outliner_tree_push(id_hash, indent);

@@ -42,6 +42,8 @@ namespace ImGui {
     using char16 = anton::char16;
     using char32 = anton::char32;
 
+    using Rect_f32 = anton::Rect_f32;
+
     using Vec2 = anton::math::Vec2;
     using Vec4 = anton::math::Vec4;
 }

@@ -47,6 +47,7 @@ Index of this file:
 #include <limits.h>     // INT_MIN, INT_MAX
 #include <anton/hashing/murmurhash2.hpp>
 #include <anton/array.hpp>
+#include <anton/string_view.hpp>
 
 // Visual Studio warnings
 #ifdef _MSC_VER
@@ -2187,6 +2188,16 @@ namespace ImGui
     IMGUI_API ImVec2        TabItemCalcSize(const char* label, bool has_close_button);
     IMGUI_API void          TabItemBackground(ImDrawList* draw_list, const ImRect& bb, ImGuiTabItemFlags flags, ImU32 col);
     IMGUI_API bool          TabItemLabelAndCloseButton(ImDrawList* draw_list, const ImRect& bb, ImGuiTabItemFlags flags, ImVec2 frame_padding, const char* label, ImGuiID tab_id, ImGuiID close_button_id, bool is_contents_visible);
+
+
+    // render_text
+    //
+    void render_text(anton::String_View text, Vec2 text_pos, Vec4 text_color);
+
+    // render_text_clipped
+    // Perform CPU clipping of the text against clip_rect.
+    //
+    void render_text_clipped(anton::String_View text, Vec2 text_pos, Rect_f32 clip_rect, Vec4 text_color);
 
     // Render helpers
     // AVOID USING OUTSIDE OF IMGUI.CPP! NOT FOR PUBLIC CONSUMPTION. THOSE FUNCTIONS ARE A MESS. THEIR SIGNATURE AND BEHAVIOR WILL CHANGE, THEY NEED TO BE REFACTORED INTO SOMETHING DECENT.
