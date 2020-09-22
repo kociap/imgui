@@ -5630,21 +5630,20 @@ namespace ImGui {
 
         // Render
 
-        u32 const text_color = GetColorU32(style.text_color);
-        u32 bg_color;
+        Vec4 bg_color;
         if(hovered) {
             if(held) {
-                bg_color = GetColorU32(style.background_active);
+                bg_color = style.background_active;
             } else {
-                bg_color = GetColorU32(style.background_hovered);
+                bg_color = style.background_hovered;
             }
         } else {
-            bg_color = GetColorU32(style.background);
+            bg_color = style.background;
         }
-        RenderFrame(frame_bb.Min, frame_bb.Max, bg_color, false, 0.0f);
+        RenderFrame(frame_bb.Min, frame_bb.Max, GetColorU32(bg_color), false, 0.0f);
         RenderNavHighlight(frame_bb, id_hash, ImGuiNavHighlightFlags_TypeThin);
         if (!is_leaf) {
-            RenderArrow(window->DrawList, Vec2(text_pos.x - text_offset_x + padding.x, text_pos.y), text_color, is_open ? ImGuiDir_Down : ImGuiDir_Right, 1.0f);
+            RenderArrow(window->DrawList, Vec2(text_pos.x - text_offset_x + padding.x, text_pos.y), GetColorU32(style.text_color), is_open ? ImGuiDir_Down : ImGuiDir_Right, 1.0f);
         }
 
         // if (flags & ImGuiTreeNodeFlags_ClipLabelForTrailingButton) {
@@ -5652,7 +5651,7 @@ namespace ImGui {
         // }
         
         Rect_f32 const clip_rect{frame_bb.Min.x, frame_bb.Min.y, frame_bb.Max.x, frame_bb.Max.y};
-        render_text_clipped(label, text_pos, clip_rect, text_color);
+        render_text_clipped(label, text_pos, clip_rect, style.text_color);
 
         if (is_open) {
             outliner_tree_push(id_hash, indent);

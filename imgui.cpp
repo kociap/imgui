@@ -2471,9 +2471,9 @@ namespace ImGui {
 
         Vec2 const text_size = CalcTextSize(text.bytes_begin(), text.bytes_end(), false, 0.0f);
         ImGuiWindow* const window = GImGui->CurrentWindow;
-        bool const needs_clipping = (pos.x < clip_min->x) || (pos.x + text_size.x >= clip_max->x) || (pos.y < clip_min->y) ||(pos.y + text_size.y >= clip_max->y);
+        bool const needs_clipping = (text_pos.x < clip_rect.left) || (text_pos.x + text_size.x >= clip_rect.right) || (text_pos.y < clip_rect.top) || (text_pos.y + text_size.y >= clip_rect.bottom);
         if(needs_clipping) {
-            Vec4 const fine_clip_rect(clip_min->x, clip_min->y, clip_max->x, clip_max->y);
+            Vec4 const fine_clip_rect(clip_rect.left, clip_rect.top, clip_rect.right, clip_rect.bottom);
             window->DrawList->AddText(NULL, 0.0f, text_pos, GetColorU32(text_color), text.bytes_begin(), text.bytes_end(), 0.0f, &fine_clip_rect);
         } else {
             window->DrawList->AddText(NULL, 0.0f, text_pos, GetColorU32(text_color), text.bytes_begin(), text.bytes_end(), 0.0f, NULL);
