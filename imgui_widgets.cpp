@@ -1062,6 +1062,8 @@ namespace ImGui {
         }
 
         u32 const id_hash = hash_label_with_id(label, id, window->IDStack.back());
+        // No idea what this does
+        imgui::KeepAliveID(id_hash);
         Vec2 const label_size = CalcTextSize(label.bytes_begin(), label.bytes_end());
 
         ImGuiContext& g = *GImGui;
