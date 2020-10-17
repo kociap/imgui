@@ -1091,7 +1091,7 @@ namespace ImGui {
             ImVec2 pad(ImMax(1.0f, IM_FLOOR(square_sz / 3.6f)), ImMax(1.0f, IM_FLOOR(square_sz / 3.6f)));
             window->DrawList->AddRectFilled(check_bb.Min + pad, check_bb.Max - pad, check_col, style.FrameRounding);
         } else if(*v) {
-            f32 pad const = ImMax(1.0f, IM_FLOOR(square_sz / 6.0f));
+            f32 const pad = ImMax(1.0f, IM_FLOOR(square_sz / 6.0f));
             RenderCheckMark(window->DrawList, check_bb.Min + ImVec2(pad, pad), check_col, square_sz - pad * 2.0f);
         }
 
