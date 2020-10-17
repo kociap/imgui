@@ -2271,10 +2271,9 @@ bool ImGui::DragScalar(const char* label, ImGuiDataType data_type, void* p_data,
         return false;
 
     // Default format string when passing NULL
-    if (format == NULL)
+    if (format == NULL) {
         format = DataTypeGetInfo(data_type)->PrintFmt;
-    else if (data_type == ImGuiDataType_S32 && strcmp(format, "%d") != 0) // (FIXME-LEGACY: Patch old "%.0f" format string to use "%d", read function more details.)
-        format = PatchFormatStringFloatToInt(format);
+    }
 
     // Tabbing or CTRL-clicking on Drag turns it into an input box
     const bool hovered = ItemHoverable(frame_bb, id);
