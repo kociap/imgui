@@ -105,6 +105,15 @@ static const ImU64          IM_U64_MAX = ULLONG_MAX; // (0xFFFFFFFFFFFFFFFFull);
 static const ImU64          IM_U64_MAX = (2ULL * 9223372036854775807LL + 1);
 #endif
 
+namespace ImGui {
+    [[nodiscard]] static u32 hash_label_with_id(anton::String_View const label, u32 const id, u32 const seed) {
+        u32 const label_hash = anton::murmurhash2_32(label.bytes_begin(), label.size_bytes(), seed);
+        u32 const id_hash = anton::murmurhash2_32((void*)&id, sizeof(u32), seed);
+        u32 const combined_hash = label_hash ^ (id_hash + 0x9e3779b9 + (label_hash << 6) + (label_hash >> 2));
+        return combined_hash;
+    }
+}
+
 //-------------------------------------------------------------------------
 // [SECTION] Forward Declarations
 //-------------------------------------------------------------------------
@@ -1043,6 +1052,54 @@ bool ImGui::ImageButton(ImTextureID user_texture_id, const ImVec2& size, const I
 
     const ImVec2 padding = (frame_padding >= 0) ? ImVec2((float)frame_padding, (float)frame_padding) : g.Style.FramePadding;
     return ImageButtonEx(id, user_texture_id, size, uv0, uv1, padding, bg_col, tint_col);
+}
+
+namespace ImGui {
+    bool checkbox(anton::String_View const label, u32 const id, bool* const v) {
+        ImGuiWindow* window = GetCurrentWindow();
+        if(window->SkipItems) {
+            return false;
+        }
+
+        u32 const id_hash = hash_label_with_id(label, id, window->IDStack.back());
+        Vec2 const label_size = CalcTextSize(label.bytes_begin(), label.bytes_end());
+
+        ImGuiContext& g = *GImGui;
+        ImGuiStyle const& style = g.Style;
+        f32 const square_sz = GetFrameHeight();
+        Vec2 const pos = window->DC.CursorPos;
+        ImRect const total_bb(pos, pos + Vec2(square_sz + (label_size.x > 0.0f ? style.ItemInnerSpacing.x + label_size.x : 0.0f), label_size.y + style.FramePadding.y * 2.0f));
+        ItemSize(total_bb, style.FramePadding.y);
+        if(!ItemAdd(total_bb, id_hash)) {
+            return false;
+        }
+
+        bool hovered, held;
+        bool const pressed = ButtonBehavior(total_bb, id_hash, &hovered, &held);
+        if(pressed) {
+            *v = !(*v);
+            MarkItemEdited(id_hash);
+        }
+
+        ImRect const check_bb(pos, pos + ImVec2(square_sz, square_sz));
+        RenderNavHighlight(total_bb, id_hash);
+        u32 const frame_color = GetColorU32((held && hovered) ? ImGuiCol_FrameBgActive : hovered ? ImGuiCol_FrameBgHovered : ImGuiCol_FrameBg);
+        RenderFrame(check_bb.Min, check_bb.Max, frame_color, true, style.FrameRounding);
+        u32 const check_col = GetColorU32(ImGuiCol_CheckMark);
+        if(window->DC.ItemFlags & ImGuiItemFlags_MixedValue) {
+            // Undocumented tristate/mixed/indeterminate checkbox (#2644)
+            ImVec2 pad(ImMax(1.0f, IM_FLOOR(square_sz / 3.6f)), ImMax(1.0f, IM_FLOOR(square_sz / 3.6f)));
+            window->DrawList->AddRectFilled(check_bb.Min + pad, check_bb.Max - pad, check_col, style.FrameRounding);
+        } else if(*v) {
+            f32 pad const = ImMax(1.0f, IM_FLOOR(square_sz / 6.0f));
+            RenderCheckMark(window->DrawList, check_bb.Min + ImVec2(pad, pad), check_col, square_sz - pad * 2.0f);
+        }
+
+        Vec2 const text_pos = Vec2(check_bb.Max.x + style.ItemInnerSpacing.x, check_bb.Min.y + style.FramePadding.y);
+        render_text(label, text_pos, style.Colors[ImGuiCol_Text]);
+
+        return pressed;
+    }
 }
 
 bool ImGui::Checkbox(const char* label, bool* v)
@@ -5457,13 +5514,6 @@ void ImGui::ColorPickerOptionsPopup(const float* ref_col, ImGuiColorEditFlags fl
 }
 
 namespace ImGui {
-    [[nodiscard]] static u32 hash_label_with_id(anton::String_View const label, u32 const id, u32 const seed) {
-        u32 const label_hash = anton::murmurhash2_32(label.bytes_begin(), label.size_bytes(), seed);
-        u32 const id_hash = anton::murmurhash2_32((void*)&id, sizeof(u32), seed);
-        u32 const combined_hash = label_hash ^ (id_hash + 0x9e3779b9 + (label_hash << 6) + (label_hash >> 2));
-        return combined_hash;
-    }
-
     Outliner_Tree_Node_Style get_outliner_tree_node_style() {
         ImGuiStyle& imgui_style = GetStyle();
         Outliner_Tree_Node_Style style;
