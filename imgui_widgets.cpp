@@ -2347,15 +2347,15 @@ namespace ImGui {
         ImGuiStyle const& style = GImGui->Style;
         Vec2 const widget_pos = window->DC.CursorPos;
         Vec2 const label_pos = Vec2{widget_pos.x, widget_pos.y + style.FramePadding.y};
-        // TODO: Is text clipping necessary here?
-        render_text(label, label_pos, style.Colors[ImGuiCol_Text]);
-        // We call ItemSize and ItemAdd manually to fake a widget
         Vec2 const text_size = CalcTextSize(label.bytes_begin(), label.bytes_end());
+        // We call ItemSize and ItemAdd manually to fake a widget
         ImRect const text_bb{label_pos, label_pos + text_size};
         ItemSize(text_bb, 0);
         if (!ItemAdd(text_bb, id_hash, &text_bb)) {
             return false;
         }
+        // TODO: Is text clipping necessary here?
+        render_text(label, label_pos, style.Colors[ImGuiCol_Text]);
 
         bool value_changed = false;
         PushMultiItemsWidths(components, CalcItemWidth());
