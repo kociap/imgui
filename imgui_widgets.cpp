@@ -112,6 +112,18 @@ namespace ImGui {
         u32 const combined_hash = label_hash ^ (id_hash + 0x9e3779b9 + (label_hash << 6) + (label_hash >> 2));
         return combined_hash;
     }
+
+    static void push_id(u32 id) {
+        ImGuiContext& g = *GImGui;
+        ImGuiWindow* window = g.CurrentWindow;
+        window->IDStack.push_back(id);
+    }
+
+    static void pop_id() {
+        ImGuiContext& g = *GImGui;
+        ImGuiWindow* window = g.CurrentWindow;
+        window->IDStack.pop_back();
+    }
 }
 
 //-------------------------------------------------------------------------
@@ -1063,7 +1075,7 @@ namespace ImGui {
 
         u32 const id_hash = hash_label_with_id(label, id, window->IDStack.back());
         // No idea what this does
-        imgui::KeepAliveID(id_hash);
+        KeepAliveID(id_hash);
         Vec2 const label_size = CalcTextSize(label.bytes_begin(), label.bytes_end());
 
         ImGuiContext& g = *GImGui;
@@ -2248,6 +2260,115 @@ bool ImGui::DragBehavior(ImGuiID id, ImGuiDataType data_type, void* p_v, float v
     }
     IM_ASSERT(0);
     return false;
+}
+
+namespace ImGui {
+    bool drag_f32(anton::String_View const label, u32 const id, f32* const v, f32 const v_speed, f32 const v_min, f32 const v_max, char const* const format, ImGuiSliderFlags const flags) {
+        ImGuiWindow* window = GetCurrentWindow();
+        if (window->SkipItems) {
+            return false;
+        }
+
+        ImGuiContext& g = *GImGui;
+        ImGuiStyle const& style = GImGui->Style;
+        u32 const id_hash = hash_label_with_id(label, id, window->IDStack.back());
+        KeepAliveID(id_hash);
+        f32 const w = CalcItemWidth();
+        Vec2 const widget_pos = window->DC.CursorPos;
+        Vec2 const label_pos = Vec2{widget_pos.x, widget_pos.y + style.FramePadding.y};
+        Vec2 const label_size = CalcTextSize(label.bytes_begin(), label.bytes_end());
+        // TODO: Is text clipping necessary here?
+        render_text(label, label_pos, style.Colors[ImGuiCol_Text]);
+
+        Vec2 const frame_pos = label_pos + Vec2{(label_size.x > 0.0f ? style.ItemInnerSpacing.x + label_size.x : 0.0f), -style.FramePadding.y};
+        ImRect const frame_bb(frame_pos, frame_pos + Vec2(w, label_size.y + style.FramePadding.y * 2.0f));
+        ImRect const total_bb(widget_pos, frame_bb.Max);
+        ItemSize(total_bb, style.FramePadding.y);
+        if (!ItemAdd(total_bb, id_hash, &frame_bb)) {
+            return false;
+        }
+
+        // Tabbing or CTRL-clicking on Drag turns it into an input box
+        bool const hovered = ItemHoverable(frame_bb, id_hash);
+        bool const temp_input_allowed = (flags & ImGuiSliderFlags_NoInput) == 0;
+        bool temp_input_is_active = temp_input_allowed && TempInputIsActive(id_hash);
+        if (!temp_input_is_active) {
+            bool const focus_requested = temp_input_allowed && FocusableItemRegister(window, id_hash);
+            bool const clicked = (hovered && g.IO.MouseClicked[0]);
+            bool const double_clicked = (hovered && g.IO.MouseDoubleClicked[0]);
+            if (focus_requested || clicked || double_clicked || g.NavActivateId == id_hash || g.NavInputId == id_hash) {
+                SetActiveID(id_hash, window);
+                SetFocusID(id_hash, window);
+                FocusWindow(window);
+                g.ActiveIdUsingNavDirMask = (1 << ImGuiDir_Left) | (1 << ImGuiDir_Right);
+                if (temp_input_allowed && (focus_requested || (clicked && g.IO.KeyCtrl) || double_clicked || g.NavInputId == id_hash)) {
+                    temp_input_is_active = true;
+                    FocusableItemUnregister(window);
+                }
+            }
+        }
+
+        if (temp_input_is_active) {
+            // Only clamp CTRL+Click input when ImGuiSliderFlags_ClampInput is set
+            bool const is_clamp_input = (flags & ImGuiSliderFlags_ClampOnInput) != 0 && (v_min < v_max);
+            // TODO: Unneeded conversion to string
+            anton::String label_str{label};
+            return TempInputScalar(frame_bb, id_hash, label_str.c_str(), ImGuiDataType_Float, v, format, is_clamp_input ? &v_min : NULL, is_clamp_input ? &v_max : NULL);
+        }
+
+        // Draw frame
+        u32 const frame_col = GetColorU32(g.ActiveId == id_hash ? ImGuiCol_FrameBgActive : g.HoveredId == id_hash ? ImGuiCol_FrameBgHovered : ImGuiCol_FrameBg);
+        RenderNavHighlight(frame_bb, id_hash);
+        RenderFrame(frame_bb.Min, frame_bb.Max, frame_col, true, style.FrameRounding);
+
+        // Drag behavior
+        bool const value_changed = DragBehavior(id_hash, ImGuiDataType_Float, v, v_speed, &v_min, &v_max, format, flags);
+        if (value_changed) {
+            MarkItemEdited(id_hash);
+        }
+
+        // Display value using user-provided display format so user can add prefix/suffix/decorations to the value.
+        char value_buf[64];
+        char const* value_buf_end = value_buf + DataTypeFormatString(value_buf, IM_ARRAYSIZE(value_buf), ImGuiDataType_Float, v, format);
+        RenderTextClipped(frame_bb.Min, frame_bb.Max, value_buf, value_buf_end, NULL, Vec2(0.5f, 0.5f));
+
+        return value_changed;
+    }
+
+    bool drag_f32_n(anton::String_View const label, u32 const id, f32* const v, i32 const components, f32 const v_speed, f32 const v_min, f32 const v_max, char const* const format, ImGuiSliderFlags const flags) {
+        ImGuiWindow* window = GetCurrentWindow();
+        if (window->SkipItems) {
+            return false;
+        }
+
+        BeginGroup();
+        u32 const id_hash = hash_label_with_id(label, id, window->IDStack.back());
+        push_id(id_hash);
+        ImGuiStyle const& style = GImGui->Style;
+        Vec2 const widget_pos = window->DC.CursorPos;
+        Vec2 const label_pos = Vec2{widget_pos.x, widget_pos.y + style.FramePadding.y};
+        // TODO: Is text clipping necessary here?
+        render_text(label, label_pos, style.Colors[ImGuiCol_Text]);
+        // We call ItemSize and ItemAdd manually to fake a widget
+        Vec2 const text_size = CalcTextSize(label.bytes_begin(), label.bytes_end());
+        ImRect const text_bb{label_pos, label_pos + text_size};
+        ItemSize(text_bb, 0);
+        if (!ItemAdd(text_bb, id_hash, &text_bb)) {
+            return false;
+        }
+
+        bool value_changed = false;
+        PushMultiItemsWidths(components, CalcItemWidth());
+        for (i32 i = 0; i < components; i++) {
+            SameLine(0, style.ItemInnerSpacing.x);
+            value_changed |= drag_f32("", i, &v[i], v_speed, v_min, v_max, format, flags);
+            PopItemWidth();
+        }
+        PopID();
+
+        EndGroup();
+        return value_changed;
+    }
 }
 
 // Note: p_data, p_min and p_max are _pointers_ to a memory address holding the data. For a Drag widget, p_min and p_max are optional.
@@ -5576,7 +5697,7 @@ namespace ImGui {
 
         u32 const id_hash = hash_label_with_id(label, id, window->IDStack.back());
         // No idea what this does
-        imgui::KeepAliveID(id_hash);
+        KeepAliveID(id_hash);
 
         ImGuiContext& g = *GImGui;
         ImGuiStyle const& imgui_style = g.Style;
