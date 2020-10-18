@@ -1083,7 +1083,7 @@ namespace ImGui {
         Vec2 const label_size = CalcTextSize(label.bytes_begin(), label.bytes_end());
         // We only want to add spacing after the label if the label is a non-empty string
         f32 const label_spacing = (label.size_bytes() > 0 ? style.ItemInnerSpacing.x : 0.0f);
-        
+
         ImRect const total_bb(widget_pos, widget_pos + label_size + Vec2(square_sz + label_spacing, style.FramePadding.y * 2.0f));
         ItemSize(total_bb, style.FramePadding.y);
         if(!ItemAdd(total_bb, id_hash)) {
@@ -2296,7 +2296,7 @@ namespace ImGui {
         bool const hovered = ItemHoverable(frame_bb, id_hash);
         bool const temp_input_allowed = (flags & ImGuiSliderFlags_NoInput) == 0;
         bool temp_input_is_active = temp_input_allowed && TempInputIsActive(id_hash);
-        if (!temp_input_is_active) {
+        if(!temp_input_is_active) {
             bool const focus_requested = temp_input_allowed && FocusableItemRegister(window, id_hash);
             bool const clicked = (hovered && g.IO.MouseClicked[0]);
             bool const double_clicked = (hovered && g.IO.MouseDoubleClicked[0]);
@@ -2310,9 +2310,7 @@ namespace ImGui {
                     FocusableItemUnregister(window);
                 }
             }
-        }
-
-        if (temp_input_is_active) {
+        } else {
             // Only clamp CTRL+Click input when ImGuiSliderFlags_ClampInput is set
             bool const is_clamp_input = (flags & ImGuiSliderFlags_ClampOnInput) != 0 && (v_min < v_max);
             // TODO: Unneeded conversion to string
