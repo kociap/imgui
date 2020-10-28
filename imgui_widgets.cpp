@@ -113,13 +113,13 @@ namespace ImGui {
         return combined_hash;
     }
 
-    static void push_id(u32 id) {
+    void push_id(u32 id) {
         ImGuiContext& g = *GImGui;
         ImGuiWindow* window = g.CurrentWindow;
         window->IDStack.push_back(id);
     }
 
-    static void pop_id() {
+    void pop_id() {
         ImGuiContext& g = *GImGui;
         ImGuiWindow* window = g.CurrentWindow;
         window->IDStack.pop_back();
