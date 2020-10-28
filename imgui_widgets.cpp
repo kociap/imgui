@@ -2267,6 +2267,67 @@ bool ImGui::DragBehavior(ImGuiID id, ImGuiDataType data_type, void* p_v, float v
 }
 
 namespace ImGui {
+    bool drag_i64(anton::String_View const label, u32 const id, i64& v, i64 const step, i64 const v_min, i64 const v_max) {
+        ImGuiWindow* window = GetCurrentWindow();
+        if(window->SkipItems) {
+            return false;
+        }
+
+        u32 const id_hash = hash_label_with_id(label, id, window->IDStack.back());
+        KeepAliveID(id_hash);
+
+        ImGuiContext& ctx = *GImGui;
+        ImGuiStyle const& style = GImGui->Style;
+        Vec2 const widget_pos = window->DC.CursorPos;
+        // Render label
+        Vec2 const label_pos = Vec2{widget_pos.x, widget_pos.y + style.FramePadding.y};
+        Vec2 const label_size = CalcTextSize(label.bytes_begin(), label.bytes_end());
+        render_text(label, label_pos, style.Colors[ImGuiCol_Text]);
+        
+        f32 const w = CalcItemWidth();
+        Vec2 const frame_pos = label_pos + Vec2{(label_size.x > 0.0f ? style.ItemInnerSpacing.x + label_size.x : 0.0f), -style.FramePadding.y};
+        ImRect const frame_bb(frame_pos, frame_pos + Vec2(w, label_size.y + style.FramePadding.y * 2.0f));
+        ImRect const total_bb(widget_pos, frame_bb.Max);
+        ItemSize(total_bb, style.FramePadding.y);
+        if (!ItemAdd(total_bb, id_hash, &frame_bb)) {
+            return false;
+        }
+
+        bool const hovered = ItemHoverable(frame_bb, id_hash);
+        bool const clicked = (hovered && ctx.IO.MouseClicked[0]);
+        bool const double_clicked = (hovered && ctx.IO.MouseDoubleClicked[0]);
+        if(clicked || double_clicked || ctx.NavActivateId == id_hash || ctx.NavInputId == id_hash) {
+            SetActiveID(id_hash, window);
+            SetFocusID(id_hash, window);
+            FocusWindow(window);
+            ctx.ActiveIdUsingNavDirMask = (1 << ImGuiDir_Left) | (1 << ImGuiDir_Right);
+        }
+
+        // Draw frame
+        u32 const frame_col = GetColorU32(ctx.ActiveId == id_hash ? ImGuiCol_FrameBgActive : ctx.HoveredId == id_hash ? ImGuiCol_FrameBgHovered : ImGuiCol_FrameBg);
+        RenderNavHighlight(frame_bb, id_hash);
+        RenderFrame(frame_bb.Min, frame_bb.Max, frame_col, true, style.FrameRounding);
+
+        // Drag behavior
+        bool const value_changed = DragBehavior(id_hash, ImGuiDataType_S64, &v, step, &v_min, &v_max, "%I64d", ImGuiSliderFlags_None);
+        if (value_changed) {
+            MarkItemEdited(id_hash);
+        }
+
+        // Display value using user-provided display format so user can add prefix/suffix/decorations to the value.
+        char value_buf[64];
+        char const* value_buf_end = value_buf + DataTypeFormatString(value_buf, IM_ARRAYSIZE(value_buf), ImGuiDataType_S64, &v, "%I64d");
+        RenderTextClipped(frame_bb.Min, frame_bb.Max, value_buf, value_buf_end, NULL, Vec2(0.5f, 0.5f));
+
+        return value_changed;
+    }
+
+    bool drag_i64(anton::String_View const label, u32 const id, i64& v, i64 const step) {
+        i64 const v_min = -9223372036854775808LL;
+        i64 const v_max = 9223372036854775807LL;
+        return drag_i64(label, id, v, step, v_min, v_max);
+    }
+
     bool drag_f32(anton::String_View const label, u32 const id, f32* const v, f32 const v_speed, f32 const v_min, f32 const v_max, char const* const format, ImGuiSliderFlags const flags) {
         ImGuiWindow* window = GetCurrentWindow();
         if (window->SkipItems) {

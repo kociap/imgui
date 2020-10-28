@@ -450,6 +450,9 @@ namespace ImGui
     IMGUI_API bool          Combo(const char* label, int* current_item, const char* items_separated_by_zeros, int popup_max_height_in_items = -1);      // Separate items with \0 within a string, end item-list with \0\0. e.g. "One\0Two\0Three\0"
     IMGUI_API bool          Combo(const char* label, int* current_item, bool(*items_getter)(void* data, int idx, const char** out_text), void* data, int items_count, int popup_max_height_in_items = -1);
 
+    bool drag_i64(anton::String_View label, u32 id, i64& v, i64 step, i64 v_min, i64 v_max);
+    bool drag_i64(anton::String_View label, u32 id, i64& v, i64 step);
+
     // drag_f32
     // Create a drag slider.
     //
