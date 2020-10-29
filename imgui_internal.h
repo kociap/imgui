@@ -2197,7 +2197,12 @@ namespace ImGui
     // render_text_clipped
     // Perform CPU clipping of the text against clip_rect.
     //
-    void render_text_clipped(anton::String_View text, Vec2 text_pos, Rect_f32 clip_rect, Vec4 text_color);
+    void render_text_clipped(anton::String_View text, Vec2 text_pos, ImRect clip_rect, Vec4 text_color);
+
+    // render_frame
+    // Render a filled rectangle
+    //
+    void render_frame(ImRect rect, Vec4 color);
 
     // Render helpers
     // AVOID USING OUTSIDE OF IMGUI.CPP! NOT FOR PUBLIC CONSUMPTION. THOSE FUNCTIONS ARE A MESS. THEIR SIGNATURE AND BEHAVIOR WILL CHANGE, THEY NEED TO BE REFACTORED INTO SOMETHING DECENT.

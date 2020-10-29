@@ -579,6 +579,16 @@ namespace ImGui
     //
     void outliner_tree_pop();
 
+    struct Collapsible_Header_Options {
+        bool open_by_default = false;
+    };
+
+    // collapsible_header
+    // Displays a collapsible header.
+    // Returns true when the header is in 'opened' state, false otherwise.
+    //
+    bool collapsible_header(anton::String_View label, u32 id, Collapsible_Header_Options const& options);
+
     // Widgets: Trees
     // - TreeNode functions return true when the node is open, in which case you need to also call TreePop() when you are finished displaying the tree node contents.
     IMGUI_API bool          TreeNode(const char* label);
@@ -1295,6 +1305,9 @@ enum ImGuiCol_
     ImGuiCol_outliner_node_bg,
     ImGuiCol_outliner_node_bg_hovered,
     ImGuiCol_outliner_node_bg_active,
+    ImGuiCol_collapsible_header_bg,
+    ImGuiCol_collapsible_header_bg_hovered,
+    ImGuiCol_collapsible_header_bg_active,
     ImGuiCol_COUNT
 
     // Obsolete names (will be removed)

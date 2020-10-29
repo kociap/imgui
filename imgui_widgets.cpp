@@ -5703,9 +5703,9 @@ namespace ImGui {
     }
 
     [[nodiscard]] static bool outliner_tree_node_is_open(u32 const id, Outliner_Tree_Node_Options const& options) {
-       if (options.leaf) {
+        if(options.leaf) {
             return true;
-       }
+        }
 
         // We only write to the tree storage if the user clicks (or explicitly use the SetNextItemOpen function)
         ImGuiContext& g = *GImGui;
@@ -5869,8 +5869,7 @@ namespace ImGui {
         //     frame_bb.Max.x -= g.FontSize + imgui_style.FramePadding.x;
         // }
         
-        Rect_f32 const clip_rect{frame_bb.Min.x, frame_bb.Min.y, frame_bb.Max.x, frame_bb.Max.y};
-        render_text_clipped(label, text_pos, clip_rect, style.text_color);
+        render_text_clipped(label, text_pos, frame_bb, style.text_color);
 
         if (is_open) {
             outliner_tree_push(id_hash, indent);
@@ -5910,6 +5909,53 @@ namespace ImGui {
         // There should always be 1 element in the IDStack (pushed during window creation). If this triggers you called TreePop/PopID too much.
         IM_ASSERT(window->IDStack.Size > 1); 
         PopID();
+    }
+
+    bool collapsible_header(anton::String_View label, u32 id, Collapsible_Header_Options const& options) {
+        ImGuiWindow* window = GetCurrentWindow();
+        if(window->SkipItems) {
+            return false;
+        }
+
+        u32 const id_hash = hash_label_with_id(label, id, window->IDStack.back());
+        KeepAliveID(id_hash);
+
+        ImGuiContext& ctx = *GImGui;
+        ImGuiStyle& style = ctx.Style;
+        ImGuiStorage& storage = *window->DC.StateStorage;
+
+        bool const is_open = storage.GetInt(id_hash, options.open_by_default) != 0;
+        Vec2 const padding = style.FramePadding;
+        Vec2 const arrow_size{2.0f * padding + ctx.FontSize};
+        ImRect const frame_rect{{window->WorkRect.Min.x, window->DC.CursorPos.y}, {window->WorkRect.Max.x, window->DC.CursorPos.y + padding.y * 2.0f + ctx.FontSize}};
+        ImRect const text_rect{{frame_rect.Min.x + arrow_size.x, frame_rect.Min.y + padding.y}, frame_rect.Max - padding};
+        ItemSize(frame_rect);
+        if(!ItemAdd(frame_rect, id_hash)) {
+            return is_open;
+        }
+
+        bool hovered, held;
+        bool const pressed = ButtonBehavior(frame_rect, id_hash, &hovered, &held, ImGuiButtonFlags_PressedOnClickRelease);
+        bool const open_state = pressed ? !is_open : is_open;
+        storage.SetInt(id_hash, open_state);
+
+        Vec4 background_color;
+        if(hovered) {
+            if(held) {
+                background_color = style.Colors[ImGuiCol_collapsible_header_bg_active];
+            } else {
+                background_color = style.Colors[ImGuiCol_collapsible_header_bg_hovered];
+            }
+        } else {
+            background_color = style.Colors[ImGuiCol_collapsible_header_bg];
+        }
+        render_frame(frame_rect, background_color);
+
+        Vec4 const text_color = style.Colors[ImGuiCol_Text];
+        render_text_clipped(label, text_rect.Min, text_rect, text_color);
+        RenderArrow(window->DrawList, Vec2(frame_rect.Min + padding), GetColorU32(text_color), open_state ? ImGuiDir_Down : ImGuiDir_Right, 1.0f);
+
+        return open_state;
     }
 }
 

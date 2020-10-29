@@ -2464,10 +2464,12 @@ const char* ImGui::GetStyleColorName(ImGuiCol idx)
 
 
 namespace ImGui {
-    void render_text_clipped(anton::String_View const text, Vec2 const text_pos, Rect_f32 const clip_rect, Vec4 const text_color) {
+    void render_text_clipped(anton::String_View const text, Vec2 const text_pos, ImRect const clip_rect_in, Vec4 const text_color) {
         if(text.size_bytes() == 0) {
             return;
         }
+
+        Rect_f32 const clip_rect{clip_rect_in.Min.x, clip_rect_in.Min.y, clip_rect_in.Max.x, clip_rect_in.Max.y};
 
         Vec2 const text_size = CalcTextSize(text.bytes_begin(), text.bytes_end(), false, 0.0f);
         ImGuiWindow* const window = GImGui->CurrentWindow;
@@ -2487,6 +2489,19 @@ namespace ImGui {
 
         ImGuiWindow* const window = GImGui->CurrentWindow;
         window->DrawList->AddText(NULL, 0.0f, text_pos, GetColorU32(text_color), text.bytes_begin(), text.bytes_end(), 0.0f, NULL);
+    }
+
+    void render_frame(ImRect const rect, Vec4 const color) {
+        ImGuiContext& ctx = *GImGui;
+        ImGuiWindow* window = ctx.CurrentWindow;
+        u32 const color_u32 = GetColorU32(color);
+        window->DrawList->AddRectFilled(rect.Min, rect.Max, color_u32, 0.0f);
+        // const float border_size = g.Style.FrameBorderSize;
+        // if (border && border_size > 0.0f)
+        // {
+        //     window->DrawList->AddRect(p_min + ImVec2(1, 1), p_max + ImVec2(1, 1), GetColorU32(ImGuiCol_BorderShadow), rounding, ImDrawCornerFlags_All, border_size);
+        //     window->DrawList->AddRect(p_min, p_max, GetColorU32(ImGuiCol_Border), rounding, ImDrawCornerFlags_All, border_size);
+        // }
     }
 }
 
