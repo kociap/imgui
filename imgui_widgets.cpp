@@ -1058,7 +1058,7 @@ bool ImGui::ImageButton(ImTextureID user_texture_id, const ImVec2& size, const I
 }
 
 namespace ImGui {
-    bool checkbox(anton::String_View const label, u32 const id, bool* const v) {
+    bool checkbox(anton::String_View const label, u32 const id, bool& v) {
         ImGuiWindow* window = GetCurrentWindow();
         if(window->SkipItems) {
             return false;
@@ -1090,7 +1090,7 @@ namespace ImGui {
         bool hovered, held;
         bool const pressed = ButtonBehavior(check_bb, id_hash, &hovered, &held);
         if(pressed) {
-            *v = !(*v);
+            v = !v;
             MarkItemEdited(id_hash);
         }
 
@@ -1102,7 +1102,7 @@ namespace ImGui {
             // Undocumented tristate/mixed/indeterminate checkbox (#2644)
             ImVec2 pad(ImMax(1.0f, IM_FLOOR(square_sz / 3.6f)), ImMax(1.0f, IM_FLOOR(square_sz / 3.6f)));
             window->DrawList->AddRectFilled(check_bb.Min + pad, check_bb.Max - pad, check_col, style.FrameRounding);
-        } else if(*v) {
+        } else if(v) {
             f32 const pad = ImMax(1.0f, IM_FLOOR(square_sz / 6.0f));
             RenderCheckMark(window->DrawList, check_bb.Min + ImVec2(pad, pad), check_col, square_sz - pad * 2.0f);
         }
@@ -2258,7 +2258,7 @@ bool ImGui::DragBehavior(ImGuiID id, ImGuiDataType data_type, void* p_v, float v
 }
 
 namespace ImGui {
-    bool drag_i64(anton::String_View const label, u32 const id, i64& v, i64 const step, i64 const v_min, i64 const v_max) {
+    bool drag_i64(anton::String_View const label, u32 const id, i64& value, i64 const step, i64 const v_min, i64 const v_max) {
         ImGuiWindow* window = GetCurrentWindow();
         if(window->SkipItems) {
             return false;
@@ -2300,26 +2300,26 @@ namespace ImGui {
         RenderFrame(frame_bb.Min, frame_bb.Max, frame_col, true, style.FrameRounding);
 
         // Drag behavior
-        bool const value_changed = DragBehavior(id_hash, ImGuiDataType_S64, &v, step, &v_min, &v_max, "%I64d", ImGuiSliderFlags_None);
+        bool const value_changed = DragBehavior(id_hash, ImGuiDataType_S64, &value, step, &v_min, &v_max, "%I64d", ImGuiSliderFlags_None);
         if (value_changed) {
             MarkItemEdited(id_hash);
         }
 
         // Display value using user-provided display format so user can add prefix/suffix/decorations to the value.
         char value_buf[64];
-        char const* value_buf_end = value_buf + DataTypeFormatString(value_buf, IM_ARRAYSIZE(value_buf), ImGuiDataType_S64, &v, "%I64d");
+        char const* value_buf_end = value_buf + DataTypeFormatString(value_buf, IM_ARRAYSIZE(value_buf), ImGuiDataType_S64, &value, "%I64d");
         RenderTextClipped(frame_bb.Min, frame_bb.Max, value_buf, value_buf_end, NULL, Vec2(0.5f, 0.5f));
 
         return value_changed;
     }
 
-    bool drag_i64(anton::String_View const label, u32 const id, i64& v, i64 const step) {
+    bool drag_i64(anton::String_View const label, u32 const id, i64& value, i64 const step) {
         i64 const v_min = -9223372036854775808LL;
         i64 const v_max = 9223372036854775807LL;
-        return drag_i64(label, id, v, step, v_min, v_max);
+        return drag_i64(label, id, value, step, v_min, v_max);
     }
 
-    bool drag_f32(anton::String_View const label, u32 const id, f32* const v, f32 const v_speed, f32 const v_min, f32 const v_max, char const* const format, ImGuiSliderFlags const flags) {
+    bool drag_f32(anton::String_View const label, u32 const id, f32& value, f32 const v_speed, f32 const v_min, f32 const v_max, char const* const format, ImGuiSliderFlags const flags) {
         ImGuiWindow* window = GetCurrentWindow();
         if (window->SkipItems) {
             return false;
@@ -2367,7 +2367,7 @@ namespace ImGui {
             bool const is_clamp_input = (flags & ImGuiSliderFlags_ClampOnInput) != 0 && (v_min < v_max);
             // TODO: Unneeded conversion to string
             anton::String label_str{label};
-            return TempInputScalar(frame_bb, id_hash, label_str.c_str(), ImGuiDataType_Float, v, format, is_clamp_input ? &v_min : NULL, is_clamp_input ? &v_max : NULL);
+            return TempInputScalar(frame_bb, id_hash, label_str.c_str(), ImGuiDataType_Float, &value, format, is_clamp_input ? &v_min : NULL, is_clamp_input ? &v_max : NULL);
         }
 
         // Draw frame
@@ -2376,20 +2376,20 @@ namespace ImGui {
         RenderFrame(frame_bb.Min, frame_bb.Max, frame_col, true, style.FrameRounding);
 
         // Drag behavior
-        bool const value_changed = DragBehavior(id_hash, ImGuiDataType_Float, v, v_speed, &v_min, &v_max, format, flags);
+        bool const value_changed = DragBehavior(id_hash, ImGuiDataType_Float, &value, v_speed, &v_min, &v_max, format, flags);
         if (value_changed) {
             MarkItemEdited(id_hash);
         }
 
         // Display value using user-provided display format so user can add prefix/suffix/decorations to the value.
         char value_buf[64];
-        char const* value_buf_end = value_buf + DataTypeFormatString(value_buf, IM_ARRAYSIZE(value_buf), ImGuiDataType_Float, v, format);
+        char const* value_buf_end = value_buf + DataTypeFormatString(value_buf, IM_ARRAYSIZE(value_buf), ImGuiDataType_Float, &value, format);
         RenderTextClipped(frame_bb.Min, frame_bb.Max, value_buf, value_buf_end, NULL, Vec2(0.5f, 0.5f));
 
         return value_changed;
     }
 
-    bool drag_f32_n(anton::String_View const label, u32 const id, f32* const v, i32 const components, f32 const v_speed, f32 const v_min, f32 const v_max, char const* const format, ImGuiSliderFlags const flags) {
+    bool drag_f32_n(anton::String_View const label, u32 const id, f32* const value, i32 const components, f32 const v_speed, f32 const v_min, f32 const v_max, char const* const format, ImGuiSliderFlags const flags) {
         ImGuiWindow* window = GetCurrentWindow();
         if (window->SkipItems) {
             return false;
@@ -2415,7 +2415,7 @@ namespace ImGui {
         PushMultiItemsWidths(components, CalcItemWidth());
         for (i32 i = 0; i < components; i++) {
             SameLine(0, style.ItemInnerSpacing.x);
-            value_changed |= drag_f32("", i, &v[i], v_speed, v_min, v_max, format, flags);
+            value_changed |= drag_f32("", i, value[i], v_speed, v_min, v_max, format, flags);
             PopItemWidth();
         }
         PopID();

@@ -427,7 +427,7 @@ namespace ImGui
     // - Most widgets return true when the value has been changed or when pressed/selected
     // - You may also use one of the many IsItemXXX functions (e.g. IsItemActive, IsItemHovered, etc.) to query widget state.
     bool Button(anton::String_View label, anton::math::Vec2 const& size = anton::math::Vec2{0.0f, 0.0f});
-    bool checkbox(anton::String_View label, u32 id, bool* v);
+    bool checkbox(anton::String_View label, u32 id, bool& v);
     IMGUI_API bool          Button(const char* label, const ImVec2& size = ImVec2(0, 0));   // button
     IMGUI_API bool          SmallButton(const char* label);                                 // button with FramePadding=(0,0) to easily embed within text
     IMGUI_API bool          InvisibleButton(const char* str_id, const ImVec2& size, ImGuiButtonFlags flags = 0); // flexible button behavior without the visuals, frequently useful to build custom behaviors using the public api (along with IsItemActive, IsItemHovered, etc.)
@@ -456,7 +456,7 @@ namespace ImGui
     // drag_f32
     // Create a drag slider.
     //
-    bool drag_f32(anton::String_View label, u32 id, f32* v, f32 v_speed = 1.0f, f32 v_min = 0.0f, f32 v_max = 0.0f, const char* format = "%.3f", ImGuiSliderFlags flags = 0);     // If v_min >= v_max we have no bound
+    bool drag_f32(anton::String_View label, u32 id, f32& v, f32 v_speed = 1.0f, f32 v_min = 0.0f, f32 v_max = 0.0f, const char* format = "%.3f", ImGuiSliderFlags flags = 0);     // If v_min >= v_max we have no bound
     
     // drag_f32_n
     // Convenience function to create a widget consisting of n drag sliders next to each other.
