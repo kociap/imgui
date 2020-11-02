@@ -2325,7 +2325,7 @@ namespace ImGui {
         return drag_i64(label, id, value, step, v_min, v_max);
     }
 
-    bool drag_f32(anton::String_View const label, u32 const id, f32& value, f32 const v_speed, f32 const v_min, f32 const v_max, char const* const format, ImGuiSliderFlags const flags) {
+    bool drag_f32(anton::String_View const label, u32 const id, f32& value, f32 const v_speed, f32 const v_min, f32 const v_max, char const* const format) {
         ImGuiWindow* window = GetCurrentWindow();
         if (window->SkipItems) {
             return false;
@@ -2381,7 +2381,7 @@ namespace ImGui {
         render_frame(frame_bb, frame_col);
 
         // Drag behavior
-        bool const value_changed = DragBehavior(id_hash, ImGuiDataType_Float, &value, v_speed, &v_min, &v_max, format, flags);
+        bool const value_changed = DragBehavior(id_hash, ImGuiDataType_Float, &value, v_speed, &v_min, &v_max, format, ImGuiSliderFlags_None);
         if (value_changed) {
             MarkItemEdited(id_hash);
         }
@@ -2394,7 +2394,7 @@ namespace ImGui {
         return value_changed;
     }
 
-    bool drag_f32_n(anton::String_View const label, u32 const id, f32* const value, i32 const components, f32 const v_speed, f32 const v_min, f32 const v_max, char const* const format, ImGuiSliderFlags const flags) {
+    bool drag_f32_n(anton::String_View const label, u32 const id, f32* const value, i32 const components, f32 const v_speed, f32 const v_min, f32 const v_max, char const* const format) {
         ImGuiWindow* window = GetCurrentWindow();
         if (window->SkipItems) {
             return false;
@@ -2420,7 +2420,7 @@ namespace ImGui {
         PushMultiItemsWidths(components, CalcItemWidth());
         for (i32 i = 0; i < components; i++) {
             SameLine(0, style.ItemInnerSpacing.x);
-            value_changed |= drag_f32("", i, value[i], v_speed, v_min, v_max, format, flags);
+            value_changed |= drag_f32("", i, value[i], v_speed, v_min, v_max, format);
             PopItemWidth();
         }
         PopID();
