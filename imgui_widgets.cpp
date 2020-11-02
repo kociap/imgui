@@ -2278,19 +2278,32 @@ namespace ImGui {
         }
 
         bool const hovered = ItemHoverable(frame_bb, id_hash);
-        bool const clicked = (hovered && ctx.IO.MouseClicked[0]);
-        bool const double_clicked = (hovered && ctx.IO.MouseDoubleClicked[0]);
-        if(clicked || double_clicked || ctx.NavActivateId == id_hash || ctx.NavInputId == id_hash) {
-            SetActiveID(id_hash, window);
-            SetFocusID(id_hash, window);
-            FocusWindow(window);
-            ctx.ActiveIdUsingNavDirMask = (1 << ImGuiDir_Left) | (1 << ImGuiDir_Right);
+        bool const temp_input_allowed = true; // (flags & ImGuiSliderFlags_NoInput) == 0;
+        bool temp_input_is_active = temp_input_allowed && TempInputIsActive(id_hash);
+        if(!temp_input_is_active) {
+            bool const focus_requested = temp_input_allowed && FocusableItemRegister(window, id_hash);
+            bool const clicked = (hovered && ctx.IO.MouseClicked[0]);
+            bool const double_clicked = (hovered && ctx.IO.MouseDoubleClicked[0]);
+            if (focus_requested || clicked || double_clicked) {
+                SetActiveID(id_hash, window);
+                SetFocusID(id_hash, window);
+                FocusWindow(window);
+                if (temp_input_allowed && (focus_requested || double_clicked)) {
+                    temp_input_is_active = true;
+                    FocusableItemUnregister(window);
+                }
+            }
+        }
+        
+        if(temp_input_is_active) {
+            // TempInputScalar displays an input field with the label on the right side. 
+            // We work around that by supplying empty label.
+            return TempInputScalar(frame_bb, id_hash, "", ImGuiDataType_S64, &value, "%I64d", &v_min, &v_max);
         }
 
         // Draw frame
-        u32 const frame_col = GetColorU32(ctx.ActiveId == id_hash ? ImGuiCol_FrameBgActive : ctx.HoveredId == id_hash ? ImGuiCol_FrameBgHovered : ImGuiCol_FrameBg);
-        RenderNavHighlight(frame_bb, id_hash);
-        RenderFrame(frame_bb.Min, frame_bb.Max, frame_col, true, style.FrameRounding);
+        Vec4 const frame_col = ctx.ActiveId == id_hash ? style.Colors[ImGuiCol_FrameBgActive] : ctx.HoveredId == id_hash ? style.Colors[ImGuiCol_FrameBgHovered] : style.Colors[ImGuiCol_FrameBg];
+        render_frame(frame_bb, frame_col);
 
         // Drag behavior
         bool const value_changed = DragBehavior(id_hash, ImGuiDataType_S64, &value, step, &v_min, &v_max, "%I64d", ImGuiSliderFlags_None);
@@ -2301,7 +2314,7 @@ namespace ImGui {
         // Display value using user-provided display format so user can add prefix/suffix/decorations to the value.
         char value_buf[64];
         char const* value_buf_end = value_buf + DataTypeFormatString(value_buf, IM_ARRAYSIZE(value_buf), ImGuiDataType_S64, &value, "%I64d");
-        RenderTextClipped(frame_bb.Min, frame_bb.Max, value_buf, value_buf_end, NULL, Vec2(0.5f, 0.5f));
+        render_text_clipped(anton::String_View{value_buf, value_buf_end}, frame_bb.Min, frame_bb, style.Colors[ImGuiCol_Text]);
 
         return value_changed;
     }
@@ -2337,36 +2350,35 @@ namespace ImGui {
             return false;
         }
 
-        // Tabbing or CTRL-clicking on Drag turns it into an input box
+        // Double-click turns the box into an input field
         bool const hovered = ItemHoverable(frame_bb, id_hash);
-        bool const temp_input_allowed = (flags & ImGuiSliderFlags_NoInput) == 0;
+        bool const temp_input_allowed = true; // (flags & ImGuiSliderFlags_NoInput) == 0;
         bool temp_input_is_active = temp_input_allowed && TempInputIsActive(id_hash);
         if(!temp_input_is_active) {
             bool const focus_requested = temp_input_allowed && FocusableItemRegister(window, id_hash);
             bool const clicked = (hovered && g.IO.MouseClicked[0]);
             bool const double_clicked = (hovered && g.IO.MouseDoubleClicked[0]);
-            if (focus_requested || clicked || double_clicked || g.NavActivateId == id_hash || g.NavInputId == id_hash) {
+            if (focus_requested || clicked || double_clicked) {
                 SetActiveID(id_hash, window);
                 SetFocusID(id_hash, window);
                 FocusWindow(window);
-                g.ActiveIdUsingNavDirMask = (1 << ImGuiDir_Left) | (1 << ImGuiDir_Right);
-                if (temp_input_allowed && (focus_requested || (clicked && g.IO.KeyCtrl) || double_clicked || g.NavInputId == id_hash)) {
+                if (temp_input_allowed && (focus_requested || double_clicked)) {
                     temp_input_is_active = true;
                     FocusableItemUnregister(window);
                 }
             }
-        } else {
-            // Only clamp CTRL+Click input when ImGuiSliderFlags_ClampInput is set
-            bool const is_clamp_input = (flags & ImGuiSliderFlags_ClampOnInput) != 0 && (v_min < v_max);
-            // TODO: Unneeded conversion to string
-            anton::String label_str{label};
-            return TempInputScalar(frame_bb, id_hash, label_str.c_str(), ImGuiDataType_Float, &value, format, is_clamp_input ? &v_min : NULL, is_clamp_input ? &v_max : NULL);
+        }
+        
+        if(temp_input_is_active) {
+            bool const is_clamp_input = v_min < v_max;
+            // TempInputScalar displays an input field with the label on the right side. 
+            // We work around that by supplying empty label.
+            return TempInputScalar(frame_bb, id_hash, "", ImGuiDataType_Float, &value, format, is_clamp_input ? &v_min : NULL, is_clamp_input ? &v_max : NULL);
         }
 
         // Draw frame
-        u32 const frame_col = GetColorU32(g.ActiveId == id_hash ? ImGuiCol_FrameBgActive : g.HoveredId == id_hash ? ImGuiCol_FrameBgHovered : ImGuiCol_FrameBg);
-        RenderNavHighlight(frame_bb, id_hash);
-        RenderFrame(frame_bb.Min, frame_bb.Max, frame_col, true, style.FrameRounding);
+        Vec4 const frame_col = g.ActiveId == id_hash ? style.Colors[ImGuiCol_FrameBgActive] : g.HoveredId == id_hash ? style.Colors[ImGuiCol_FrameBgHovered] : style.Colors[ImGuiCol_FrameBg];
+        render_frame(frame_bb, frame_col);
 
         // Drag behavior
         bool const value_changed = DragBehavior(id_hash, ImGuiDataType_Float, &value, v_speed, &v_min, &v_max, format, flags);
@@ -2375,9 +2387,9 @@ namespace ImGui {
         }
 
         // Display value using user-provided display format so user can add prefix/suffix/decorations to the value.
-        char value_buf[64];
+        char value_buf[64] = {};
         char const* value_buf_end = value_buf + DataTypeFormatString(value_buf, IM_ARRAYSIZE(value_buf), ImGuiDataType_Float, &value, format);
-        RenderTextClipped(frame_bb.Min, frame_bb.Max, value_buf, value_buf_end, NULL, Vec2(0.5f, 0.5f));
+        render_text_clipped(anton::String_View{value_buf, value_buf_end}, frame_bb.Min, frame_bb, style.Colors[ImGuiCol_Text]);
 
         return value_changed;
     }
@@ -3394,7 +3406,7 @@ bool ImGui::TempInputText(const ImRect& bb, ImGuiID id, const char* label, char*
         ClearActiveID();
 
     g.CurrentWindow->DC.CursorPos = bb.Min;
-    bool value_changed = InputTextEx(label, NULL, buf, buf_size, bb.GetSize(), flags);
+    bool value_changed = InputTextEx(id, label, NULL, buf, buf_size, bb.GetSize(), flags);
     if (init)
     {
         // First frame we started displaying the InputText widget, we expect it to take the active id.
@@ -3999,7 +4011,17 @@ static bool InputTextFilterCharacter(unsigned int* p_char, ImGuiInputTextFlags f
 // - If you want to use ImGui::InputText() with std::string, see misc/cpp/imgui_stdlib.h
 // (FIXME: Rather confusing and messy function, among the worse part of our codebase, expecting to rewrite a V2 at some point.. Partly because we are
 //  doing UTF8 > U16 > UTF8 conversions on the go to easily interface with stb_textedit. Ideally should stay in UTF-8 all the time. See https://github.com/nothings/stb/issues/188)
-bool ImGui::InputTextEx(const char* label, const char* hint, char* buf, int buf_size, const ImVec2& size_arg, ImGuiInputTextFlags flags, ImGuiInputTextCallback callback, void* callback_user_data)
+bool ImGui::InputTextEx(const char* label, const char* hint, char* buf, int buf_size, const ImVec2& size_arg, ImGuiInputTextFlags flags, ImGuiInputTextCallback callback, void* callback_user_data) 
+{
+    ImGuiWindow* window = GetCurrentWindow();
+    if (window->SkipItems)
+        return false;
+
+    const ImGuiID id = window->GetID(label);
+    return InputTextEx(id, label, hint, buf, buf_size, size_arg, flags, callback, callback_user_data);
+}
+
+bool ImGui::InputTextEx(ImGuiID const id, const char* label, const char* hint, char* buf, int buf_size, const ImVec2& size_arg, ImGuiInputTextFlags flags, ImGuiInputTextCallback callback, void* callback_user_data)
 {
     ImGuiWindow* window = GetCurrentWindow();
     if (window->SkipItems)
@@ -4024,7 +4046,6 @@ bool ImGui::InputTextEx(const char* label, const char* hint, char* buf, int buf_
 
     if (is_multiline) // Open group before calling GetID() because groups tracks id created within their scope,
         BeginGroup();
-    const ImGuiID id = window->GetID(label);
     const ImVec2 label_size = CalcTextSize(label, NULL, true);
     const ImVec2 frame_size = CalcItemSize(size_arg, CalcItemWidth(), (is_multiline ? g.FontSize * 8.0f : label_size.y) + style.FramePadding.y * 2.0f); // Arbitrary default of 8 lines high for multi-line
     const ImVec2 total_size = ImVec2(frame_size.x + (label_size.x > 0.0f ? style.ItemInnerSpacing.x + label_size.x : 0.0f), frame_size.y);

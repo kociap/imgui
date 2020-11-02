@@ -452,7 +452,8 @@ namespace ImGui
 
     // drag_i64
     // Displays a draggable input field.
-    // value will be clamped to value_min and value_max.
+    // Value will be clamped to value_min and value_max.
+    // Double-clicking turns the field into an input field. The input value will be clamped to value_min and value_max.
     //
     bool drag_i64(anton::String_View label, u32 id, i64& value, i64 step, i64 value_min, i64 value_max);
 
@@ -462,14 +463,15 @@ namespace ImGui
     bool drag_i64(anton::String_View label, u32 id, i64& value, i64 step);
 
     // drag_f32
-    // Create a drag slider.
+    // Create a drag field. Double-clicking the field turns it into an input field. 
+    // The input value is clamped to v_min and v_max unless v_min >= v_max in which case no clamping occurs.
     //
-    bool drag_f32(anton::String_View label, u32 id, f32& v, f32 v_speed = 1.0f, f32 v_min = 0.0f, f32 v_max = 0.0f, const char* format = "%.3f", ImGuiSliderFlags flags = 0);     // If v_min >= v_max we have no bound
+    bool drag_f32(anton::String_View label, u32 id, f32& value, f32 v_speed, f32 v_min = 0.0f, f32 v_max = 0.0f, const char* format = "%.3f", ImGuiSliderFlags flags = 0);
     
     // drag_f32_n
-    // Convenience function to create a widget consisting of n drag sliders next to each other.
+    // Convenience function to create a widget consisting of n drag fields next to each other.
     //
-    bool drag_f32_n(anton::String_View label, u32 id, f32* v, i32 n, f32 v_speed = 1.0f, f32 v_min = 0.0f, f32 v_max = 0.0f, const char* format = "%.3f", ImGuiSliderFlags flags = 0);
+    bool drag_f32_n(anton::String_View label, u32 id, f32* value, i32 n, f32 v_speed, f32 v_min = 0.0f, f32 v_max = 0.0f, const char* format = "%.3f", ImGuiSliderFlags flags = 0);
     
     // Widgets: Drag Sliders
     // - CTRL+Click on any drag box to turn them into an input box. Manually input values aren't clamped and can go off-bounds.
