@@ -48,6 +48,7 @@ Index of this file:
 #include <anton/hashing/murmurhash2.hpp>
 #include <anton/array.hpp>
 #include <anton/string_view.hpp>
+#include <anton/math/math.hpp>
 
 // Visual Studio warnings
 #ifdef _MSC_VER

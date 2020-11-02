@@ -2314,7 +2314,12 @@ namespace ImGui {
         // Display value using user-provided display format so user can add prefix/suffix/decorations to the value.
         char value_buf[64];
         char const* value_buf_end = value_buf + DataTypeFormatString(value_buf, IM_ARRAYSIZE(value_buf), ImGuiDataType_S64, &value, "%I64d");
-        render_text_clipped(anton::String_View{value_buf, value_buf_end}, frame_bb.Min, frame_bb, style.Colors[ImGuiCol_Text]);
+        anton::String_View const text{value_buf, value_buf_end};
+        // center text vertically and horizontally
+        Vec2 const text_size = CalcTextSize(text.bytes_begin(), text.bytes_end());
+        Vec2 const text_pos{anton::math::max(frame_bb.Min.x, frame_bb.Min.x + (frame_bb.Max.x - frame_bb.Min.x - text_size.x) * 0.5f), 
+                            anton::math::max(frame_bb.Min.y, frame_bb.Min.y + (frame_bb.Max.y - frame_bb.Min.y - text_size.y) * 0.5f)};
+        render_text_clipped(text, text_pos, frame_bb, style.Colors[ImGuiCol_Text]);
 
         return value_changed;
     }
@@ -2389,7 +2394,12 @@ namespace ImGui {
         // Display value using user-provided display format so user can add prefix/suffix/decorations to the value.
         char value_buf[64] = {};
         char const* value_buf_end = value_buf + DataTypeFormatString(value_buf, IM_ARRAYSIZE(value_buf), ImGuiDataType_Float, &value, format);
-        render_text_clipped(anton::String_View{value_buf, value_buf_end}, frame_bb.Min, frame_bb, style.Colors[ImGuiCol_Text]);
+        anton::String_View const text{value_buf, value_buf_end};
+        // center text vertically and horizontally
+        Vec2 const text_size = CalcTextSize(text.bytes_begin(), text.bytes_end());
+        Vec2 const text_pos{anton::math::max(frame_bb.Min.x, frame_bb.Min.x + (frame_bb.Max.x - frame_bb.Min.x - text_size.x) * 0.5f), 
+                            anton::math::max(frame_bb.Min.y, frame_bb.Min.y + (frame_bb.Max.y - frame_bb.Min.y - text_size.y) * 0.5f)};
+        render_text_clipped(text, text_pos, frame_bb, style.Colors[ImGuiCol_Text]);
 
         return value_changed;
     }
