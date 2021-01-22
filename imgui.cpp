@@ -2457,6 +2457,9 @@ const char* ImGui::GetStyleColorName(ImGuiCol idx)
     case ImGuiCol_outliner_node_bg: return "outliner_node_bg";
     case ImGuiCol_outliner_node_bg_hovered: return "outliner_node_bg_hovered";
     case ImGuiCol_outliner_node_bg_active: return "outliner_node_bg_active";
+    case ImGuiCol_collapsible_header_bg: return "collapsible_header_bg";
+    case ImGuiCol_collapsible_header_bg_hovered: return "collapsible_header_bg_hovered";
+    case ImGuiCol_collapsible_header_bg_active: return "collapsible_header_bg_active";
     }
     IM_ASSERT(0);
     return "Unknown";
