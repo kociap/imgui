@@ -2536,6 +2536,8 @@ namespace ImGui {
         ImRect const text_bb{label_pos, label_pos + text_size};
         ItemSize(text_bb, 0);
         if (!ItemAdd(text_bb, id_hash, &text_bb)) {
+            pop_id();
+            EndGroup();
             return false;
         }
         // TODO: Is text clipping necessary here?
