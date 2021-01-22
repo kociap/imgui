@@ -556,6 +556,8 @@ namespace ImGui
         bool leaf = false;
         // Whether this node should be open when first displayed or not
         bool open_by_default = false;
+        // If the text should be editable on double-click
+        bool editable_text = false;
     };
 
     struct Outliner_Tree_Node_Style {
@@ -577,8 +579,12 @@ namespace ImGui
     // If style is not provided, uses the colors from the global theme (ImGuiCol_outliner_node_bg, etc.).
     // Returns true when the node is open. 
     //
-    bool outliner_tree_node(anton::String_View label, u32 id, Outliner_Tree_Node_Options const& options, Outliner_Tree_Node_Style const& style);
-    bool outliner_tree_node(anton::String_View label, u32 id, Outliner_Tree_Node_Options const& options);
+    bool outliner_tree_node(anton::String& label, u32 id, Outliner_Tree_Node_Options const& options, Outliner_Tree_Node_Style const& style);
+    bool outliner_tree_node(anton::String& label, u32 id, Outliner_Tree_Node_Options const& options);
+
+    bool editable_text(anton::String& text, ImVec2 position, bool start_interaction);
+
+    bool selectable_input(anton::String& text, i32 imgui_id, bool selected, ImGuiSelectableFlags flags = 0);
 
     // outliner_tree_pop
     //

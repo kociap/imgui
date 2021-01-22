@@ -5831,6 +5831,59 @@ void ImGui::ColorPickerOptionsPopup(const float* ref_col, ImGuiColorEditFlags fl
 }
 
 namespace ImGui {
+    // imgui is single-threaded, so this is safe
+    char temporary_input_buffer[1024];
+
+    bool editable_text(anton::String& str, ImVec2 pos_before, bool pressed) {
+        ImGuiContext& g = *GImGui;
+        ImGuiWindow* window = g.CurrentWindow;
+
+        strncpy(temporary_input_buffer, str.c_str(), IM_ARRAYSIZE(temporary_input_buffer));
+
+        bool ret = pressed;
+
+        ImGuiID id = window->GetID("##Input");
+        bool temp_input_is_active = TempInputIsActive(id);
+        bool temp_input_start = pressed ? IsMouseDoubleClicked(0) : false;
+
+        if(temp_input_start) {
+            SetActiveID(id, window);
+        }
+
+        if(temp_input_is_active || temp_input_start) {
+            ImVec2 pos_after = window->DC.CursorPos;
+            window->DC.CursorPos = pos_before;
+            bool chgtext =
+                TempInputText(window->DC.LastItemRect, id, "##Input", temporary_input_buffer, IM_ARRAYSIZE(temporary_input_buffer), ImGuiInputTextFlags_None);
+            if(chgtext) {
+                str.reserve(strlen(temporary_input_buffer));
+                strcpy(str.data(), temporary_input_buffer);
+                str.force_size(strlen(temporary_input_buffer));
+            }
+            ret |= chgtext;
+            window->DC.CursorPos = pos_after;
+        } else {
+            window->DrawList->AddText(pos_before, GetColorU32(ImGuiCol_Text), temporary_input_buffer);
+        }
+
+        return ret;
+    }
+
+    bool selectable_input(anton::String& str, i32 imgui_id, bool selected, ImGuiSelectableFlags flags) {
+        ImGuiContext& g = *GImGui;
+        ImGuiWindow* window = g.CurrentWindow;
+        ImVec2 pos_before = window->DC.CursorPos;
+
+        PushID(imgui_id);
+        PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(g.Style.ItemSpacing.x, g.Style.FramePadding.y * 2.0f));
+        bool ret = Selectable("##Selectable", selected, flags | ImGuiSelectableFlags_AllowDoubleClick | ImGuiSelectableFlags_AllowItemOverlap);
+        PopStyleVar();
+
+        ret |= editable_text(str, pos_before, ret);
+        PopID();
+        return ret;
+    }
+
     Outliner_Tree_Node_Style get_outliner_tree_node_style() {
         ImGuiStyle& imgui_style = GetStyle();
         Outliner_Tree_Node_Style style;
@@ -5884,12 +5937,12 @@ namespace ImGui {
         return is_open;
     }
 
-    bool outliner_tree_node(anton::String_View const label, u32 const id, Outliner_Tree_Node_Options const& options, Outliner_Tree_Node_Style const& style) {
+    bool outliner_tree_node(anton::String& label, u32 const id, Outliner_Tree_Node_Options const& options, Outliner_Tree_Node_Style const& style) {
         ImGuiWindow* window = GetCurrentWindow();
         if(window->SkipItems) {
             return false;
         }
-
+        PushID(id);
         u32 const id_hash = hash_label_with_id(label, id, window->IDStack.back());
         // No idea what this does
         KeepAliveID(id_hash);
@@ -5939,10 +5992,8 @@ namespace ImGui {
             return is_open;
         }
 
-        ImGuiButtonFlags button_flags = ImGuiButtonFlags_PressedOnClickRelease;
-        // if (flags & ImGuiTreeNodeFlags_AllowItemOverlap) {
-        //     button_flags |= ImGuiButtonFlags_AllowItemOverlap;
-        // }
+        ImGuiButtonFlags button_flags = ImGuiButtonFlags_PressedOnClickRelease | ImGuiButtonFlags_PressedOnDoubleClick;
+        button_flags |= ImGuiButtonFlags_AllowItemOverlap;
 
         // if (!is_leaf) {
         //     button_flags |= ImGuiButtonFlags_PressedOnDragDropHold;
@@ -5991,9 +6042,7 @@ namespace ImGui {
             }
         }
 
-        // if (flags & ImGuiTreeNodeFlags_AllowItemOverlap) {
-        //     SetItemAllowOverlap();
-        // }
+        SetItemAllowOverlap();
 
         // Render
 
@@ -6016,8 +6065,13 @@ namespace ImGui {
         // if (flags & ImGuiTreeNodeFlags_ClipLabelForTrailingButton) {
         //     frame_bb.Max.x -= g.FontSize + imgui_style.FramePadding.x;
         // }
-        
-        render_text_clipped(label, text_pos, frame_bb, style.text_color);
+        if (options.editable_text) {
+            editable_text(label, text_pos, pressed);
+        } else {
+            render_text_clipped(label, text_pos, frame_bb, style.text_color);
+        }
+
+        PopID();
 
         if (is_open) {
             outliner_tree_push(id_hash, indent);
@@ -6026,7 +6080,7 @@ namespace ImGui {
         return is_open;
     }
 
-    bool outliner_tree_node(anton::String_View const label, u32 const id, Outliner_Tree_Node_Options const& options) {
+    bool outliner_tree_node(anton::String& label, u32 const id, Outliner_Tree_Node_Options const& options) {
         ImGuiStyle& imgui_style = GetStyle();
         Outliner_Tree_Node_Style style;
         style.text_color = imgui_style.Colors[ImGuiCol_Text];
