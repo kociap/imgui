@@ -106,6 +106,11 @@ static const ImU64          IM_U64_MAX = (2ULL * 9223372036854775807LL + 1);
 #endif
 
 namespace ImGui {
+    [[nodiscard]] static u32 hash_id(u32 const id, u32 const seed) {
+        u32 const id_hash = anton::murmurhash2_32((void*)&id, sizeof(u32), seed);
+        return id_hash;
+    }
+
     [[nodiscard]] static u32 hash_label_with_id(anton::String_View const label, u32 const id, u32 const seed) {
         u32 const label_hash = anton::murmurhash2_32(label.bytes_begin(), label.size_bytes(), seed);
         u32 const id_hash = anton::murmurhash2_32((void*)&id, sizeof(u32), seed);
@@ -5937,23 +5942,23 @@ namespace ImGui {
         return is_open;
     }
 
-    bool outliner_tree_node(anton::String& label, u32 const id, Outliner_Tree_Node_Options const& options, Outliner_Tree_Node_Style const& style) {
+    bool outliner_tree_node(u32 const id, anton::String& display_text, Outliner_Tree_Node_Options const& options, Outliner_Tree_Node_Style const& style) {
         ImGuiWindow* window = GetCurrentWindow();
         if(window->SkipItems) {
             return false;
         }
-        PushID(id);
-        u32 const id_hash = hash_label_with_id(label, id, window->IDStack.back());
+
+        u32 const id_hash = hash_id(id, window->IDStack.back());
         // No idea what this does
         KeepAliveID(id_hash);
 
         ImGuiContext& g = *GImGui;
         ImGuiStyle const& imgui_style = g.Style;
         Vec2 const padding = imgui_style.FramePadding;
-        Vec2 const label_size = CalcTextSize(label.bytes_begin(), label.bytes_end(), false);
+        Vec2 const display_text_size = CalcTextSize(display_text.bytes_begin(), display_text.bytes_end(), false);
 
         // We vertically grow up to current line height up the typical widget height.
-        f32 const frame_height = ImMax(ImMin(window->DC.CurrLineSize.y, g.FontSize + imgui_style.FramePadding.y * 2), label_size.y + padding.y * 2);
+        f32 const frame_height = ImMax(ImMin(window->DC.CurrLineSize.y, g.FontSize + imgui_style.FramePadding.y * 2), display_text_size.y + padding.y * 2);
         ImRect frame_bb;
         // We want the node to span the entire width of the parent widget
         frame_bb.Min.x = window->WorkRect.Min.x;
@@ -5973,7 +5978,7 @@ namespace ImGui {
         // Latch before ItemSize changes it
         f32 const text_offset_y = ImMax(padding.y, window->DC.CurrLineTextBaseOffset);
         // Include collapser
-        f32 const text_width = g.FontSize + (label_size.x > 0.0f ? label_size.x + padding.x * 2 : 0.0f);
+        f32 const text_width = g.FontSize + (display_text_size.x > 0.0f ? display_text_size.x + padding.x * 2 : 0.0f);
         Vec2 text_pos(window->DC.CursorPos.x + text_offset_x, window->DC.CursorPos.y + text_offset_y);
         ItemSize(Vec2(text_width, frame_height), padding.y);
 
@@ -5984,9 +5989,8 @@ namespace ImGui {
         window->DC.LastItemStatusFlags |= ImGuiItemStatusFlags_HasDisplayRect;
         window->DC.LastItemDisplayRect = frame_bb;
 
-        if (!item_add)
-        {
-            if (is_open) {
+        if(!item_add) {
+            if(is_open) {
                 outliner_tree_push(id_hash, indent);
             }
             return is_open;
@@ -6065,29 +6069,28 @@ namespace ImGui {
         // if (flags & ImGuiTreeNodeFlags_ClipLabelForTrailingButton) {
         //     frame_bb.Max.x -= g.FontSize + imgui_style.FramePadding.x;
         // }
-        if (options.editable_text) {
-            editable_text(label, text_pos, pressed);
+
+        if(options.editable_text) {
+            editable_text(display_text, text_pos, pressed);
         } else {
-            render_text_clipped(label, text_pos, frame_bb, style.text_color);
+            render_text_clipped(display_text, text_pos, frame_bb, style.text_color);
         }
 
-        PopID();
-
-        if (is_open) {
+        if(is_open) {
             outliner_tree_push(id_hash, indent);
         }
 
         return is_open;
     }
 
-    bool outliner_tree_node(anton::String& label, u32 const id, Outliner_Tree_Node_Options const& options) {
+    bool outliner_tree_node(u32 const id, anton::String& display_string, Outliner_Tree_Node_Options const& options) {
         ImGuiStyle& imgui_style = GetStyle();
         Outliner_Tree_Node_Style style;
         style.text_color = imgui_style.Colors[ImGuiCol_Text];
         style.background = imgui_style.Colors[ImGuiCol_outliner_node_bg];
         style.background_hovered = imgui_style.Colors[ImGuiCol_outliner_node_bg_hovered];
         style.background_active = imgui_style.Colors[ImGuiCol_outliner_node_bg_active];
-        return outliner_tree_node(label, id, options, style);
+        return outliner_tree_node(id, display_string, options, style);
     }
 
     void outliner_tree_pop() {

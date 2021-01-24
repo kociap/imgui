@@ -579,8 +579,8 @@ namespace ImGui
     // If style is not provided, uses the colors from the global theme (ImGuiCol_outliner_node_bg, etc.).
     // Returns true when the node is open. 
     //
-    bool outliner_tree_node(anton::String& label, u32 id, Outliner_Tree_Node_Options const& options, Outliner_Tree_Node_Style const& style);
-    bool outliner_tree_node(anton::String& label, u32 id, Outliner_Tree_Node_Options const& options);
+    bool outliner_tree_node(u32 id, anton::String& display_string, Outliner_Tree_Node_Options const& options, Outliner_Tree_Node_Style const& style);
+    bool outliner_tree_node(u32 id, anton::String& display_string, Outliner_Tree_Node_Options const& options);
 
     bool editable_text(anton::String& text, ImVec2 position, bool start_interaction);
 
