@@ -5948,7 +5948,8 @@ namespace ImGui {
             return false;
         }
 
-        u32 const id_hash = hash_id(id, window->IDStack.back());
+        imgui::push_id(id);
+        u32 const id_hash = hash_id(0, window->IDStack.back());
         // No idea what this does
         KeepAliveID(id_hash);
 
@@ -5993,6 +5994,7 @@ namespace ImGui {
             if(is_open) {
                 outliner_tree_push(id_hash, indent);
             }
+            imgui::pop_id();
             return is_open;
         }
 
@@ -6080,6 +6082,7 @@ namespace ImGui {
             outliner_tree_push(id_hash, indent);
         }
 
+        imgui::pop_id();
         return is_open;
     }
 
