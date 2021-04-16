@@ -577,7 +577,9 @@ namespace ImGui
     //
     // If the node is open, you must call outliner_tree_pop() after you're done displaying the node contents.
     // If style is not provided, uses the colors from the global theme (ImGuiCol_outliner_node_bg, etc.).
-    // Returns true when the node is open. 
+    //
+    // Returns:
+    // true when the node is open. 
     //
     bool outliner_tree_node(u32 id, anton::String& display_string, Outliner_Tree_Node_Options const& options, Outliner_Tree_Node_Style const& style);
     bool outliner_tree_node(u32 id, anton::String& display_string, Outliner_Tree_Node_Options const& options);
@@ -594,10 +596,24 @@ namespace ImGui
         bool open_by_default = false;
     };
 
+    struct Collapsible_Header_Style {
+        Vec4 text_color;
+        Vec4 background;
+        Vec4 background_hovered;
+        Vec4 background_active;
+    };
+
     // collapsible_header
     // Displays a collapsible header.
-    // Returns true when the header is in 'opened' state, false otherwise.
     //
+    // If style is not provided, uses the colors from the global theme (ImGuiCol_collapsible_header_bg, etc.).
+    //
+    // Returns:
+    // true when the header is in 'opened' state, false otherwise.
+    //
+    // TODO: Fix the api. Should not take label, but display_string after id. should not hash display_string with id
+    //
+    bool collapsible_header(anton::String_View label, u32 id, Collapsible_Header_Options const& options, Collapsible_Header_Style const& style);
     bool collapsible_header(anton::String_View label, u32 id, Collapsible_Header_Options const& options);
 
     // Widgets: Trees

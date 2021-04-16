@@ -6116,7 +6116,7 @@ namespace ImGui {
         PopID();
     }
 
-    bool collapsible_header(anton::String_View label, u32 id, Collapsible_Header_Options const& options) {
+    bool collapsible_header(anton::String_View label, u32 id, Collapsible_Header_Options const& options, Collapsible_Header_Style const& style) {
         ImGuiWindow* window = GetCurrentWindow();
         if(window->SkipItems) {
             return false;
@@ -6126,11 +6126,11 @@ namespace ImGui {
         KeepAliveID(id_hash);
 
         ImGuiContext& ctx = *GImGui;
-        ImGuiStyle& style = ctx.Style;
+        ImGuiStyle& imgui_style = ctx.Style;
         ImGuiStorage& storage = *window->DC.StateStorage;
 
         bool const is_open = storage.GetInt(id_hash, options.open_by_default) != 0;
-        Vec2 const padding = style.FramePadding;
+        Vec2 const padding = imgui_style.FramePadding;
         Vec2 const arrow_size{2.0f * padding + ctx.FontSize};
         ImRect const frame_rect{{window->WorkRect.Min.x, window->DC.CursorPos.y}, {window->WorkRect.Max.x, window->DC.CursorPos.y + padding.y * 2.0f + ctx.FontSize}};
         ImRect const text_rect{{frame_rect.Min.x + arrow_size.x, frame_rect.Min.y + padding.y}, frame_rect.Max - padding};
@@ -6147,20 +6147,30 @@ namespace ImGui {
         Vec4 background_color;
         if(hovered) {
             if(held) {
-                background_color = style.Colors[ImGuiCol_collapsible_header_bg_active];
+                background_color = style.background_active;
             } else {
-                background_color = style.Colors[ImGuiCol_collapsible_header_bg_hovered];
+                background_color = style.background_hovered;
             }
         } else {
-            background_color = style.Colors[ImGuiCol_collapsible_header_bg];
+            background_color = style.background;
         }
         render_frame(frame_rect, background_color);
 
-        Vec4 const text_color = style.Colors[ImGuiCol_Text];
+        Vec4 const text_color = style.text_color;
         render_text_clipped(label, text_rect.Min, text_rect, text_color);
         RenderArrow(window->DrawList, Vec2(frame_rect.Min + padding), GetColorU32(text_color), open_state ? ImGuiDir_Down : ImGuiDir_Right, 1.0f);
 
         return open_state;
+    }
+
+    bool collapsible_header(anton::String_View label, u32 id, Collapsible_Header_Options const& options) {
+        ImGuiStyle& imgui_style = GetStyle();
+        Collapsible_Header_Style style;
+        style.text_color = imgui_style.Colors[ImGuiCol_Text];
+        style.background = imgui_style.Colors[ImGuiCol_collapsible_header_bg];
+        style.background_hovered = imgui_style.Colors[ImGuiCol_collapsible_header_bg_hovered];
+        style.background_active = imgui_style.Colors[ImGuiCol_collapsible_header_bg_active];
+        return outliner_tree_node(id, display_string, options, style);
     }
 }
 
