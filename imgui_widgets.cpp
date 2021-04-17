@@ -737,7 +737,7 @@ namespace ImGui {
         push_id(id_hash);
         KeepAliveID(id_hash);
 
-        Vec2 const display_text_size = CalcTextSize(display_text.bytes_begin(), display_text.bytes_end(), false
+        Vec2 const display_text_size = CalcTextSize(display_text.bytes_begin(), display_text.bytes_end(), false);
 
         Vec2 const text_pos = window->DC.CursorPos + style.padding;
         Vec2 const size = display_text_size + style.padding * 2.0f;
@@ -768,7 +768,7 @@ namespace ImGui {
         style.background_hovered = imgui_style.Colors[ImGuiCol_button_bg_hovered];
         style.background_active = imgui_style.Colors[ImGuiCol_button_bg_active];
         style.padding = imgui_style.FramePadding;
-        return outliner_tree_node(id, display_string, options, style);
+        return button(id, display_text, style);
     }
 }
 
