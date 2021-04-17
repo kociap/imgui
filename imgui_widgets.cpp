@@ -741,10 +741,6 @@ namespace ImGui {
         Vec2 const text_pos = window->DC.CursorPos + style.padding;
         Vec2 const size = display_text_size + style.padding * 2.0f;
         ImVec2 const pos = window->DC.CursorPos;
-        // Try to vertically align buttons that are smaller/have no padding so that text baseline matches (bit hacky, since it shouldn't be a flag)
-        if (style.padding.y < window->DC.CurrLineTextBaseOffset) {
-            pos.y += window->DC.CurrLineTextBaseOffset - style.FramePadding.y;
-        }
 
         ImRect const frame_bb(pos, pos + size);
         ItemSize(size, style.padding.y);
