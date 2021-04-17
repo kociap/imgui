@@ -734,7 +734,6 @@ namespace ImGui {
         }
 
         u32 const id_hash = hash_id(id, window->IDStack.back());
-        push_id(id_hash);
         KeepAliveID(id_hash);
 
         Vec2 const display_text_size = CalcTextSize(display_text.bytes_begin(), display_text.bytes_end(), false);
@@ -742,6 +741,10 @@ namespace ImGui {
         Vec2 const text_pos = window->DC.CursorPos + style.padding;
         Vec2 const size = display_text_size + style.padding * 2.0f;
         ImVec2 const pos = window->DC.CursorPos;
+        // Try to vertically align buttons that are smaller/have no padding so that text baseline matches (bit hacky, since it shouldn't be a flag)
+        if (style.padding.y < window->DC.CurrLineTextBaseOffset) {
+            pos.y += window->DC.CurrLineTextBaseOffset - style.FramePadding.y;
+        }
 
         ImRect const frame_bb(pos, pos + size);
         ItemSize(size, style.padding.y);
