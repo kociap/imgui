@@ -6175,13 +6175,13 @@ namespace ImGui {
         PopID();
     }
 
-    bool collapsible_header(anton::String_View label, u32 id, Collapsible_Header_Options const& options, Collapsible_Header_Style const& style) {
+    bool collapsible_header(anton::String_View display_text, u32 id, Collapsible_Header_Options const& options, Collapsible_Header_Style const& style) {
         ImGuiWindow* window = GetCurrentWindow();
         if(window->SkipItems) {
             return false;
         }
 
-        u32 const id_hash = hash_label_with_id(label, id, window->IDStack.back());
+        u32 const id_hash = hash_label_with_id(display_text, id, window->IDStack.back());
         KeepAliveID(id_hash);
 
         ImGuiContext& ctx = *GImGui;
@@ -6216,20 +6216,20 @@ namespace ImGui {
         render_frame(frame_rect, background_color);
 
         Vec4 const text_color = style.text_color;
-        render_text_clipped(label, text_rect.Min, text_rect, text_color);
+        render_text_clipped(display_text, text_rect.Min, text_rect, text_color);
         RenderArrow(window->DrawList, Vec2(frame_rect.Min + padding), GetColorU32(text_color), open_state ? ImGuiDir_Down : ImGuiDir_Right, 1.0f);
 
         return open_state;
     }
 
-    bool collapsible_header(anton::String_View label, u32 id, Collapsible_Header_Options const& options) {
+    bool collapsible_header(anton::String_View display_text, u32 id, Collapsible_Header_Options const& options) {
         ImGuiStyle& imgui_style = GetStyle();
         Collapsible_Header_Style style;
         style.text_color = imgui_style.Colors[ImGuiCol_Text];
         style.background = imgui_style.Colors[ImGuiCol_collapsible_header_bg];
         style.background_hovered = imgui_style.Colors[ImGuiCol_collapsible_header_bg_hovered];
         style.background_active = imgui_style.Colors[ImGuiCol_collapsible_header_bg_active];
-        return outliner_tree_node(id, display_string, options, style);
+        return collapsible_header(id, display_text, options, style);
     }
 }
 
