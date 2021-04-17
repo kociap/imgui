@@ -424,11 +424,30 @@ namespace ImGui
     IMGUI_API void          BulletText(const char* fmt, ...)                                IM_FMTARGS(1); // shortcut for Bullet()+Text()
     IMGUI_API void          BulletTextV(const char* fmt, va_list args)                      IM_FMTLIST(1);
 
+    struct Button_Style {
+        Vec4 text_color;
+        Vec4 background;
+        Vec4 background_hovered;
+        Vec4 background_active;
+        Vec2 padding;
+    };
+
+    // button
+    // Displays an interactive button.
+    //
+    // If style is not provided, uses the values from the global theme (ImGuiCol_button_bg, etc.).
+    //
+    // Returns:
+    // true when the button is pressed, false otherwise.
+    //
+    bool button(u32 id, anton::String_View display_text, Button_Style const& style);
+    bool button(u32 id, anton::String_View display_text);
+    
+    bool checkbox(anton::String_View label, u32 id, bool& v);
+
     // Widgets: Main
     // - Most widgets return true when the value has been changed or when pressed/selected
     // - You may also use one of the many IsItemXXX functions (e.g. IsItemActive, IsItemHovered, etc.) to query widget state.
-    bool Button(anton::String_View label, anton::math::Vec2 const& size = anton::math::Vec2{0.0f, 0.0f});
-    bool checkbox(anton::String_View label, u32 id, bool& v);
     IMGUI_API bool          Button(const char* label, const ImVec2& size = ImVec2(0, 0));   // button
     IMGUI_API bool          SmallButton(const char* label);                                 // button with FramePadding=(0,0) to easily embed within text
     IMGUI_API bool          InvisibleButton(const char* str_id, const ImVec2& size, ImGuiButtonFlags flags = 0); // flexible button behavior without the visuals, frequently useful to build custom behaviors using the public api (along with IsItemActive, IsItemHovered, etc.)
@@ -1336,6 +1355,9 @@ enum ImGuiCol_
     ImGuiCol_collapsible_header_bg,
     ImGuiCol_collapsible_header_bg_hovered,
     ImGuiCol_collapsible_header_bg_active,
+    ImGuiCol_button_bg,
+    ImGuiCol_button_bg_hovered,
+    ImGuiCol_button_bg_active,
     ImGuiCol_COUNT
 
     // Obsolete names (will be removed)

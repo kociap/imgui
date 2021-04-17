@@ -133,6 +133,18 @@ namespace ImGui {
         ImGuiWindow* window = GImGui->CurrentWindow;
         window->IDStack.pop_back();
     }
+
+    Vec4 get_interactive_element_color(bool const hovered, bool const held, Vec4 const default_color, Vec4 const hovered_color, Vec4 const active_color) {
+        if(hovered) {
+            if(held) {
+                return active_color;
+            } else {
+                return hovered_color;
+            }
+        } else {
+            return default_color;
+        }
+    }
 }
 
 //-------------------------------------------------------------------------
@@ -714,10 +726,50 @@ bool ImGui::ButtonEx(const char* label, const ImVec2& size_arg, ImGuiButtonFlags
     return pressed;
 }
 
-bool imgui::Button(anton::String_View label, anton::math::Vec2 const& size) {
-    // TODO: Allocates a string to ensure the text we pass to ButtonEx is null-terminated
-    anton::String l{label};
-    return ButtonEx(l.c_str(), size, ImGuiButtonFlags_None);
+namespace ImGui {
+    bool button(u32 const id, anton::String_View const display_text, Button_Style const& style) {
+        ImGuiWindow* window = GetCurrentWindow();
+        if (window->SkipItems) {
+            return false;
+        }
+
+        u32 const id_hash = hash_id(id, window->IDStack.back());
+        push_id(id_hash);
+        KeepAliveID(id_hash);
+
+        Vec2 const display_text_size = CalcTextSize(display_text.bytes_begin(), display_text.bytes_end(), false
+
+        Vec2 const text_pos = window->DC.CursorPos + style.padding;
+        Vec2 const size = display_text_size + style.padding * 2.0f;
+        ImVec2 const pos = window->DC.CursorPos;
+
+        ImRect const frame_bb(pos, pos + size);
+        ItemSize(size, style.padding.y);
+        if (!ItemAdd(frame_bb, id_hash))
+            return false;
+
+        ImGuiButtonFlags button_flags;
+        bool hovered, held;
+        bool const pressed = ButtonBehavior(frame_bb, id_hash, &hovered, &held, button_flags);
+
+        // Render
+        Vec4 const bg_color = get_interactive_element_color(hovered, held, style.background, style.background_hovered, style.background_active);
+        RenderFrame(frame_bb.Min, frame_bb.Max, GetColorU32(bg_color), false, 0.0f);
+        render_text_clipped(display_text, text_pos, frame_bb, style.text_color);
+
+        return pressed;
+    }
+
+    bool button(u32 id, anton::String_View display_text) {
+        ImGuiStyle& imgui_style = GetStyle();
+        Button_Style style;
+        style.text_color = imgui_style.Colors[ImGuiCol_Text];
+        style.background = imgui_style.Colors[ImGuiCol_button_bg];
+        style.background_hovered = imgui_style.Colors[ImGuiCol_button_bg_hovered];
+        style.background_active = imgui_style.Colors[ImGuiCol_button_bg_active];
+        style.padding = imgui_style.FramePadding;
+        return outliner_tree_node(id, display_string, options, style);
+    }
 }
 
 bool ImGui::Button(const char* label, const ImVec2& size_arg)
