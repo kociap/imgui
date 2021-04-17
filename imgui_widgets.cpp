@@ -6229,7 +6229,7 @@ namespace ImGui {
         style.background = imgui_style.Colors[ImGuiCol_collapsible_header_bg];
         style.background_hovered = imgui_style.Colors[ImGuiCol_collapsible_header_bg_hovered];
         style.background_active = imgui_style.Colors[ImGuiCol_collapsible_header_bg_active];
-        return collapsible_header(id, display_text, options, style);
+        return collapsible_header(display_text, id, options, style);
     }
 }
 
