@@ -118,15 +118,19 @@ namespace ImGui {
         return combined_hash;
     }
 
-    void push_id(u32 id) {
-        ImGuiContext& g = *GImGui;
-        ImGuiWindow* window = g.CurrentWindow;
+    void push_id(u32 const id) {
+        ImGuiWindow* window = GImGui->CurrentWindow;
         window->IDStack.push_back(id);
     }
 
+    void push_id(anton::String_View const id) {
+        u32 const hash = anton::murmurhash2_32(id.bytes_begin(), id.size_bytes());
+        ImGuiWindow* window = GImGui->CurrentWindow;
+        window->IDStack.push_back(hash);
+    }
+
     void pop_id() {
-        ImGuiContext& g = *GImGui;
-        ImGuiWindow* window = g.CurrentWindow;
+        ImGuiWindow* window = GImGui->CurrentWindow;
         window->IDStack.pop_back();
     }
 }

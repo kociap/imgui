@@ -388,6 +388,7 @@ namespace ImGui
     IMGUI_API float         GetFrameHeightWithSpacing();                                    // ~ FontSize + style.FramePadding.y * 2 + style.ItemSpacing.y (distance in pixels between 2 consecutive lines of framed widgets)
 
     void push_id(u32 id);
+    void push_id(anton::String_View id);
     void pop_id();
 
     // ID stack/scopes
