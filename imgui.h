@@ -442,6 +442,9 @@ namespace ImGui
     //
     bool button(u32 id, anton::String_View display_text, Button_Style const& style);
     bool button(u32 id, anton::String_View display_text);
+
+    bool invisible_button(u32 id, Vec2 size, Vec2 position);
+    bool invisible_button(u32 id, Vec2 size);
     
     bool checkbox(anton::String_View label, u32 id, bool& v);
 

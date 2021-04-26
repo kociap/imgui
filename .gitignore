@@ -1,3 +1,7 @@
+build
+build.bat
+buildf.bat
+
 ## OSX artifacts
 .DS_Store
 
