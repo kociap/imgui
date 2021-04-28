@@ -725,6 +725,7 @@ CODE
 #include "imgui.h"
 #ifndef IMGUI_DISABLE
 
+#include <internal.hpp>
 #include "imgui_internal.h"
 
 // System includes
@@ -4444,6 +4445,8 @@ void ImGui::EndFrame()
     NavEndFrame();
 
     SetCurrentViewport(NULL, NULL);
+
+    drag_drop::end_frame();
 
     // Drag and Drop: Elapse payload (if delivered, or if source stops being submitted)
     if (g.DragDropActive)

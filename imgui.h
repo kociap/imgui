@@ -59,6 +59,8 @@ Index of this file:
 
 #include <misc/freetype/imgui_freetype.h>
 
+#include <imgui/drag_drop.hpp>
+
 // Version
 // (Integer encoded as XYYZZ for use in #if preprocessor conditionals. Work in progress versions typically starts at XYY99 then bounce up to XYY00, XYY01 etc. when release tagging happens)
 #define IMGUI_VERSION               "1.79 WIP"

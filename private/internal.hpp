@@ -10,4 +10,10 @@ namespace ImGui {
     void pop_id();
 
     [[nodiscard]] Vec4 get_interactive_element_color(bool hovered, bool held, Vec4 default_color, Vec4 hovered_color, Vec4 active_color);
+
+    namespace drag_drop {
+        // end_frame
+        //
+        void end_frame();
+    }
 }

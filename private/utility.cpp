@@ -1,4 +1,4 @@
-#include <utility.hpp>
+#include <internal.hpp>
 
 namespace ImGui {
     u32 hash_id(u32 const id, u32 const seed) {

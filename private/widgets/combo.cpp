@@ -1,4 +1,4 @@
-#include <utility.hpp>
+#include <internal.hpp>
 
 namespace ImGui {
     static float CalcMaxPopupHeightFromItemCount(int items_count) {
