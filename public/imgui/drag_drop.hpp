@@ -28,6 +28,15 @@ namespace ImGui::drag_drop {
     //
     void set_payload(u64 payload_id, anton::Slice<u8 const> data);
 
+    // get_payload_id
+    // Retrieves the ID of the current payload.
+    //
+    // Returns:
+    // ID of the current payload. The returned value is always 0 
+    // when no drag and drop operation is in progress.
+    //
+    [[nodiscard]] u64 get_payload_id();
+
     // get_payload
     // Obtains the stored payload.
     //

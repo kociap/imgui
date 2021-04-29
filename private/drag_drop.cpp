@@ -63,6 +63,10 @@ namespace ImGui::drag_drop {
         context.payload_set = true;
     }
 
+    u64 get_payload_id() {
+        return context.payload_id;
+    }
+
     anton::Slice<u8> get_payload() {
         return context.data;
     }
