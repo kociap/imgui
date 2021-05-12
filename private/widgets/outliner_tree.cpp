@@ -26,7 +26,7 @@ namespace ImGui {
             bool chgtext =
                 TempInputText(window->DC.LastItemRect, id, "##Input", temporary_input_buffer, IM_ARRAYSIZE(temporary_input_buffer), ImGuiInputTextFlags_None);
             if(chgtext) {
-                str.reserve(strlen(temporary_input_buffer));
+                str.ensure_capacity(strlen(temporary_input_buffer));
                 strcpy(str.data(), temporary_input_buffer);
                 str.force_size(strlen(temporary_input_buffer));
             }
