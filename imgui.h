@@ -412,6 +412,27 @@ namespace ImGui
     // Widgets: Text
 
     void Text(anton::String_View text);
+
+    // text_ellipsis
+    // Render a single-line text that, when longer than max_width, will end with an ellipsis ('...').
+    //
+    // Parameters:
+    //      text - the text to render.
+    // max_width - max width of the rendered text in pixels.
+    //     color - color of the text.
+    //
+    void text_ellipsis(anton::String_View text, f32 max_width, Vec4 color);
+    
+    // text_ellipsis
+    // Render a single-line text that, when longer than max_width, will end with an ellipsis ('...').
+    // The color of the text will be the same as ImGuiCol_Text.
+    //
+    // Parameters:
+    //      text - the text to render.
+    // max_width - max width of the rendered text in pixels.
+    //
+    void text_ellipsis(anton::String_View text, f32 max_width);
+
     IMGUI_API void          TextUnformatted(const char* text, const char* text_end = NULL); // raw text without formatting. Roughly equivalent to Text("%s", text) but: A) doesn't require null terminated string if 'text_end' is specified, B) it's faster, no memory copy is done, no buffer size limits, recommended for long chunks of text.
     IMGUI_API void          Text(const char* fmt, ...)                                      IM_FMTARGS(1); // formatted text
     IMGUI_API void          TextV(const char* fmt, va_list args)                            IM_FMTLIST(1);
@@ -2717,6 +2738,16 @@ struct ImFont
     IMGUI_API const ImFontGlyph*FindGlyph(ImWchar c) const;
     IMGUI_API const ImFontGlyph*FindGlyphNoFallback(ImWchar c) const;
     float                       GetCharAdvance(ImWchar c) const     { return ((int)c < IndexAdvanceX.Size) ? IndexAdvanceX[(int)c] : FallbackAdvanceX; }
+    
+    // get_char_advance_x
+    // 
+    // Returns:
+    // The horizontal advance of the given character in pixels (TODO: Is it actually pixels?).
+    //
+    [[nodiscard]] imgui::f32 get_char_advance_x(imgui::char32 const c) const {
+        return ((imgui::f32)c < IndexAdvanceX.Size ? IndexAdvanceX.Data[c] : FallbackAdvanceX);
+    }
+    
     bool                        IsLoaded() const                    { return ContainerAtlas != NULL; }
     const char*                 GetDebugName() const                { return ConfigData ? ConfigData->Name : "<unknown>"; }
 

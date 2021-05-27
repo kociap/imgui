@@ -2466,49 +2466,6 @@ const char* ImGui::GetStyleColorName(ImGuiCol idx)
     return "Unknown";
 }
 
-
-namespace ImGui {
-    void render_text_clipped(anton::String_View const text, Vec2 const text_pos, ImRect const clip_rect_in, Vec4 const text_color) {
-        if(text.size_bytes() == 0) {
-            return;
-        }
-
-        Rect_f32 const clip_rect{clip_rect_in.Min.x, clip_rect_in.Min.y, clip_rect_in.Max.x, clip_rect_in.Max.y};
-
-        Vec2 const text_size = CalcTextSize(text.bytes_begin(), text.bytes_end(), false, 0.0f);
-        ImGuiWindow* const window = GImGui->CurrentWindow;
-        bool const needs_clipping = (text_pos.x < clip_rect.left) || (text_pos.x + text_size.x >= clip_rect.right) || (text_pos.y < clip_rect.top) || (text_pos.y + text_size.y >= clip_rect.bottom);
-        if(needs_clipping) {
-            Vec4 const fine_clip_rect(clip_rect.left, clip_rect.top, clip_rect.right, clip_rect.bottom);
-            window->DrawList->AddText(NULL, 0.0f, text_pos, GetColorU32(text_color), text.bytes_begin(), text.bytes_end(), 0.0f, &fine_clip_rect);
-        } else {
-            window->DrawList->AddText(NULL, 0.0f, text_pos, GetColorU32(text_color), text.bytes_begin(), text.bytes_end(), 0.0f, NULL);
-        }
-    }
-
-    void render_text(anton::String_View const text, Vec2 const text_pos, Vec4 const text_color) {
-        if(text.size_bytes() == 0) {
-            return;
-        }
-
-        ImGuiWindow* const window = GImGui->CurrentWindow;
-        window->DrawList->AddText(NULL, 0.0f, text_pos, GetColorU32(text_color), text.bytes_begin(), text.bytes_end(), 0.0f, NULL);
-    }
-
-    void render_frame(ImRect const rect, Vec4 const color) {
-        ImGuiContext& ctx = *GImGui;
-        ImGuiWindow* window = ctx.CurrentWindow;
-        u32 const color_u32 = GetColorU32(color);
-        window->DrawList->AddRectFilled(rect.Min, rect.Max, color_u32, 0.0f);
-        // const float border_size = g.Style.FrameBorderSize;
-        // if (border && border_size > 0.0f)
-        // {
-        //     window->DrawList->AddRect(p_min + ImVec2(1, 1), p_max + ImVec2(1, 1), GetColorU32(ImGuiCol_BorderShadow), rounding, ImDrawCornerFlags_All, border_size);
-        //     window->DrawList->AddRect(p_min, p_max, GetColorU32(ImGuiCol_Border), rounding, ImDrawCornerFlags_All, border_size);
-        // }
-    }
-}
-
 //-----------------------------------------------------------------------------
 // [SECTION] RENDER HELPERS
 // Some of those (internal) functions are currently quite a legacy mess - their signature and behavior will change,

@@ -22,15 +22,17 @@ FetchContent_Declare(
 FetchContent_MakeAvailable(freetype)
 
 add_library(imgui STATIC 
-    "${CMAKE_CURRENT_SOURCE_DIR}/private/utility.cpp"
+    "${CMAKE_CURRENT_SOURCE_DIR}/private/drag_drop.cpp"
+    "${CMAKE_CURRENT_SOURCE_DIR}/private/internal.cpp"
     "${CMAKE_CURRENT_SOURCE_DIR}/private/internal.hpp"
+    "${CMAKE_CURRENT_SOURCE_DIR}/private/utility.cpp"
     "${CMAKE_CURRENT_SOURCE_DIR}/private/widgets/button.cpp"
     "${CMAKE_CURRENT_SOURCE_DIR}/private/widgets/checkbox.cpp"
     "${CMAKE_CURRENT_SOURCE_DIR}/private/widgets/collapsible_header.cpp"
     "${CMAKE_CURRENT_SOURCE_DIR}/private/widgets/combo.cpp"
     "${CMAKE_CURRENT_SOURCE_DIR}/private/widgets/drag.cpp"
     "${CMAKE_CURRENT_SOURCE_DIR}/private/widgets/outliner_tree.cpp"
-    "${CMAKE_CURRENT_SOURCE_DIR}/private/drag_drop.cpp"
+    "${CMAKE_CURRENT_SOURCE_DIR}/private/widgets/text.cpp"
     "${CMAKE_CURRENT_SOURCE_DIR}/imgui_draw.cpp"
     "${CMAKE_CURRENT_SOURCE_DIR}/imgui_demo.cpp"
     "${CMAKE_CURRENT_SOURCE_DIR}/imgui_widgets.cpp"
