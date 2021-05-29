@@ -2557,6 +2557,10 @@ struct ImFontGlyph
     float           U0, V0, U1, V1;     // Texture coordinates
 };
 
+namespace ImGui {
+    using Font_Glyph = ImFontGlyph;
+}
+
 // Helper to build glyph ranges from text/string data. Feed your application strings/characters to it then call BuildRanges().
 // This is essentially a tightly packed of vector of 64k booleans = 8KB storage.
 struct ImFontGlyphRangesBuilder
@@ -2739,6 +2743,19 @@ struct ImFont
     IMGUI_API const ImFontGlyph*FindGlyphNoFallback(ImWchar c) const;
     float                       GetCharAdvance(ImWchar c) const     { return ((int)c < IndexAdvanceX.Size) ? IndexAdvanceX[(int)c] : FallbackAdvanceX; }
     
+    imgui::Font_Glyph const* find_glyph(imgui::char32 const c) const {
+        if (c >= (size_t)IndexLookup.Size) {
+            return FallbackGlyph;
+        }
+
+        imgui::i64 const  i = IndexLookup.Data[c];
+        if (i == (imgui::i64)-1) {
+            return FallbackGlyph;
+        }
+
+        return &Glyphs.Data[i];
+    }
+
     // get_char_advance_x
     // 
     // Returns:
