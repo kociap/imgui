@@ -67,6 +67,7 @@ namespace ImGui {
         // We will go through the text and find a substring that will fit in the given space
         // after adding the ellipsis.
         ImFont const* const font = GImGui->Font;
+        f32 const font_size = font->FontSize;
         Font_Glyph const* dot_glyph = font->find_glyph(U'.');
         f32 const dot_left_bearing = dot_glyph->X0;
         f32 const dot_width = dot_glyph->X1 - dot_glyph->X0;
