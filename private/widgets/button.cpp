@@ -23,9 +23,9 @@ namespace ImGui {
             return false;
         }
 
-        ImGuiButtonFlags button_flags;
-        bool hovered, held;
-        bool const pressed = ButtonBehavior(frame_bb, id_hash, &hovered, &held, button_flags);
+        bool hovered = false; 
+        bool held = false;
+        bool const pressed = ButtonBehavior(frame_bb, id_hash, &hovered, &held, ImGuiButtonFlags_None);
 
         // Render
         Vec4 const bg_color = get_interactive_element_color(hovered, held, style.background, style.background_hovered, style.background_active);
@@ -62,8 +62,9 @@ namespace ImGui {
             return false;
         }
 
-        bool hovered, held;
-        bool pressed = ButtonBehavior(bb, id_hash, &hovered, &held, 0);
+        bool hovered = false; 
+        bool held = false;
+        bool pressed = ButtonBehavior(bb, id_hash, &hovered, &held, ImGuiButtonFlags_None);
         return pressed;
     }
 
