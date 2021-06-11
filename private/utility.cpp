@@ -40,4 +40,8 @@ namespace ImGui {
             return default_color;
         }
     }
+
+    u32 make_id(anton::String_View const string) {
+        return anton::murmurhash2_32(string.data(), string.size_bytes());
+    }
 }

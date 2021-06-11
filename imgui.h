@@ -218,8 +218,9 @@ using ImVec4 = anton::math::Vec4;
 // ImGui: Dear ImGui end-user API
 //-----------------------------------------------------------------------------
 
-namespace ImGui
-{
+namespace ImGui {
+    [[nodiscard]] u32 make_id(anton::String_View string);
+
     // Context creation and access
     // Each context create its own ImFontAtlas by default. You may instance one yourself and pass it to CreateContext() to share a font atlas between imgui contexts.
     // None of those functions is reliant on the current context.
