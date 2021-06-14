@@ -150,11 +150,13 @@ namespace ImGui {
 
         ImRect interact_bb = frame_bb;
         bool const is_leaf = options.leaf;
-        bool const item_add = ItemAdd(interact_bb, id_hash);
         bool is_open = outliner_tree_node_is_open(id_hash, options);
         window->DC.LastItemStatusFlags |= ImGuiItemStatusFlags_HasDisplayRect;
         window->DC.LastItemDisplayRect = frame_bb;
 
+        // We must call ItemAdd after outliner_tree_node_is_open because ItemAdd sets the flags in
+        // NextItemData to 0 preventing us from using SetNextItemOpen.
+        bool const item_add = ItemAdd(interact_bb, id_hash);
         if(!item_add) {
             if(is_open) {
                 outliner_tree_push(id_hash, indent);
