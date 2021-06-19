@@ -32,6 +32,7 @@ add_library(imgui STATIC
     "${CMAKE_CURRENT_SOURCE_DIR}/private/widgets/combo.cpp"
     "${CMAKE_CURRENT_SOURCE_DIR}/private/widgets/drag.cpp"
     "${CMAKE_CURRENT_SOURCE_DIR}/private/widgets/outliner_tree.cpp"
+    "${CMAKE_CURRENT_SOURCE_DIR}/private/widgets/popup.cpp"
     "${CMAKE_CURRENT_SOURCE_DIR}/private/widgets/text.cpp"
     "${CMAKE_CURRENT_SOURCE_DIR}/imgui_draw.cpp"
     "${CMAKE_CURRENT_SOURCE_DIR}/imgui_demo.cpp"
