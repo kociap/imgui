@@ -5,10 +5,6 @@
 namespace ImGui {
     using namespace anton::literals;
 
-    [[nodiscard]] Vec2 calculate_text_size(anton::String_View const text) {
-        return CalcTextSize(text.bytes_begin(), text.bytes_end(), false, 0.0f);
-    }
-
     void render_text_clipped(anton::String_View const text, Vec2 const text_pos, ImRect const clip_rect_in, Vec4 const text_color) {
         if(text.size_bytes() == 0) {
             return;

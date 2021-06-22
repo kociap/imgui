@@ -1,6 +1,10 @@
 #include <internal.hpp>
 
 namespace ImGui {
+    Vec2 calculate_text_size(anton::String_View const text) {
+        return CalcTextSize(text.bytes_begin(), text.bytes_end(), false, 0.0f);
+    }
+
     u32 hash_id(u32 const id, u32 const seed) {
         u32 const id_hash = anton::murmurhash2_32((void*)&id, sizeof(u32), seed);
         return id_hash;

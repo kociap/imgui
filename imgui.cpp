@@ -2461,6 +2461,7 @@ const char* ImGui::GetStyleColorName(ImGuiCol idx)
     case ImGuiCol_collapsible_header_bg: return "collapsible_header_bg";
     case ImGuiCol_collapsible_header_bg_hovered: return "collapsible_header_bg_hovered";
     case ImGuiCol_collapsible_header_bg_active: return "collapsible_header_bg_active";
+    case ImGuiCol_context_menu_separator: return "context_menu_separator";
     }
     IM_ASSERT(0);
     return "Unknown";
@@ -6464,6 +6465,10 @@ bool ImGui::Begin(const char* name, bool* p_open, ImGuiWindowFlags flags)
         window->DC.NavFocusScopeIdCurrent = (flags & ImGuiWindowFlags_ChildWindow) ? parent_window->DC.NavFocusScopeIdCurrent : 0; // -V595
         window->DC.NavHideHighlightOneFrame = false;
         window->DC.NavHasScroll = (window->ScrollMax.y > 0.0f);
+
+        // Reset the context menu next width
+        window->DC.context_menu_width = window->DC.next_context_menu_width;
+        window->DC.next_context_menu_width = 0.0f;
 
         window->DC.MenuBarAppending = false;
         window->DC.MenuColumns.Update(3, style.ItemSpacing.x, window_just_activated_by_user);

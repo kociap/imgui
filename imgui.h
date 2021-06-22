@@ -224,6 +224,25 @@ namespace ImGui {
     bool begin_window_context_menu();
     bool begin_window_context_menu(u32 id);
 
+    struct Menu_Item_Options {
+        bool disabled;
+    };
+
+    struct Menu_Item_Style {
+        Vec2 spacing;
+        Vec2 padding;
+        Vec4 text;
+        Vec4 text_disabled;
+        Vec4 background;
+        Vec4 background_hover;
+        Vec4 background_active;
+    };
+
+    // bool context_menu_item(u32 id, anton::String_View text, Menu_Item_Options item);
+    bool context_menu_item(u32 id, anton::String_View text, Menu_Item_Options item, Menu_Item_Style style);
+    void context_menu_separator();
+    void context_menu_separator(Vec4 color);
+
     // Context creation and access
     // Each context create its own ImFontAtlas by default. You may instance one yourself and pass it to CreateContext() to share a font atlas between imgui contexts.
     // None of those functions is reliant on the current context.
@@ -1388,6 +1407,7 @@ enum ImGuiCol_
     ImGuiCol_button_bg,
     ImGuiCol_button_bg_hovered,
     ImGuiCol_button_bg_active,
+    ImGuiCol_context_menu_separator,
     ImGuiCol_COUNT
 
     // Obsolete names (will be removed)

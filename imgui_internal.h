@@ -1653,6 +1653,8 @@ struct IMGUI_API ImGuiWindowTempData
     // Array of indent values that have been added to Indent by outliner_tree_node functions 
     // that we will then use to decrease the Indent as we pop the nodes
     anton::Array<imgui::f32> indent_stack;
+    imgui::f32 context_menu_width = 0.0f;
+    imgui::f32 next_context_menu_width = 0.0f;
     ImVec1                  ColumnsOffset;          // Offset to the current column (if ColumnsCurrent > 0). FIXME: This and the above should be a stack to allow use cases like Tree->Column->Tree. Need revamp columns API.
     ImVec1                  GroupOffset;
 

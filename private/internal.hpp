@@ -2,6 +2,7 @@
 #include <imgui_internal.h>
 
 namespace ImGui {
+    [[nodiscard]] Vec2 calculate_text_size(anton::String_View text);
     [[nodiscard]] u32 hash_id(u32 id, u32 seed);
     [[nodiscard]] u32 hash_label_with_id(anton::String_View label, u32 id, u32 seed);
 
