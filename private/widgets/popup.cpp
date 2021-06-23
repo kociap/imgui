@@ -43,30 +43,35 @@ namespace ImGui {
 
         // Save the size for the next frame
         f32 const context_menu_width = window->DC.context_menu_width;
-        window->DC.next_context_menu_width = anton::math::max(text_size.x, context_menu_width);
+        {
+            f32 const max_current = anton::math::max(text_size.x, context_menu_width);
+            window->DC.next_context_menu_width = anton::math::max(window->DC.next_context_menu_width, max_current);
+        }
 
         u32 const id_hash = hash_id(id, window->IDStack.back());
         KeepAliveID(id_hash);
 
         Vec2 const position = window->DC.CursorPos;
-        Vec2 const box_min = position + style.spacing;
-        Vec2 const box_max = box_min + Vec2{context_menu_width - 2.0f * style.spacing.x, text_size.y + 2.0f * style.padding.y};
+        Vec2 const spaced_box_min = position;
+        Vec2 const spaced_box_max = spaced_box_min + 2.0f * (style.spacing + style.padding) + Vec2{context_menu_width, text_size.y};
+        Vec2 const box_min = spaced_box_min + style.spacing;
+        Vec2 const box_max = spaced_box_max - style.spacing;
         Vec2 const text_min = box_min + style.padding;
         Vec2 const text_max = box_max - style.padding;
 
         // f32 const min_x = window->ParentWorkRect.Min.x;
         // f32 const max_x = window->ParentWorkRect.Max.x;
         
-        ImRect bb{box_min, box_max};
-        ItemSize(bb);
+        ImRect spaced_bb{spaced_box_min, spaced_box_max};
+        ItemSize(spaced_bb);
         if(!options.disabled) {
-            if(!ItemAdd(bb, id_hash)) {
+            if(!ItemAdd(spaced_bb, id_hash)) {
                 return false;
             }
         } else {
             ImGuiItemFlags backup_item_flags = window->DC.ItemFlags;
             window->DC.ItemFlags |= ImGuiItemFlags_Disabled | ImGuiItemFlags_NoNavDefaultFocus;
-            bool const item_add = ItemAdd(bb, id_hash);
+            bool const item_add = ItemAdd(spaced_bb, id_hash);
             window->DC.ItemFlags = backup_item_flags;
             if(!item_add) {
                 return false;
@@ -78,6 +83,7 @@ namespace ImGui {
             button_flags |= ImGuiButtonFlags_Disabled;
         }
 
+        ImRect bb{box_min, box_max};
         bool hovered, held;
         bool pressed = ButtonBehavior(bb, id_hash, &hovered, &held, button_flags);
 
