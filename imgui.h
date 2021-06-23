@@ -226,7 +226,7 @@ namespace ImGui {
     void end_context_menu();
 
     struct Menu_Item_Options {
-        bool disabled;
+        bool disabled = false;
     };
 
     struct Menu_Item_Style {
