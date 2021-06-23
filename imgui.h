@@ -242,7 +242,7 @@ namespace ImGui {
     // bool context_menu_item(u32 id, anton::String_View text, Menu_Item_Options item);
     bool context_menu_item(u32 id, anton::String_View text, Menu_Item_Options item, Menu_Item_Style style);
     void context_menu_separator();
-    void context_menu_separator(Vec4 color);
+    void context_menu_separator(Vec2 spacing, Vec4 color);
 
     // Context creation and access
     // Each context create its own ImFontAtlas by default. You may instance one yourself and pass it to CreateContext() to share a font atlas between imgui contexts.

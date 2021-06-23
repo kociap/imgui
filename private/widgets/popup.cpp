@@ -58,6 +58,7 @@ namespace ImGui {
         // f32 const max_x = window->ParentWorkRect.Max.x;
         
         ImRect bb{box_min, box_max};
+        ItemSize(bb);
         if(!options.disabled) {
             if(!ItemAdd(bb, id_hash)) {
                 return false;
@@ -96,11 +97,12 @@ namespace ImGui {
 
     void context_menu_separator() {
         ImGuiStyle& style = GImGui->Style;
+        Vec2 const spacing = style.FramePadding;
         Vec4 const color = style.Colors[ImGuiCol_context_menu_separator];
-        context_menu_separator(color);
+        context_menu_separator(spacing, color);
     }
 
-    void context_menu_separator(Vec4 const color) {
+    void context_menu_separator(Vec2 const spacing, Vec4 const color) {
         ImGuiWindow* window = GetCurrentWindow();
         if(window->SkipItems) {
             return;
@@ -113,16 +115,16 @@ namespace ImGui {
         f32 const content_width = GetContentRegionAvail().x;
         Vec2 cursor = window->DC.CursorPos;
 
-        ImRect bb{cursor, cursor + Vec2{content_width, 5.0f}};
+        ImRect bb{cursor, cursor + Vec2{content_width, 1.0f + 2.0f * spacing.y}};
         if(!ItemAdd(bb, 0)) {
             return;
         }
 
-        // Add 2 pixels of spacing above
-        cursor.y += 2.0f;
-        window->DrawList->AddLine(cursor + Vec2{font_size, 0.0f}, cursor + Vec2{content_width - font_size, 0.0f}, color_u32, 1.0f);
-        // Add 2 pixels of spacing below + 1 pixel for the line width
-        cursor.y += 3.0f;
+        // Add spacing above
+        cursor.y += spacing.y;
+        window->DrawList->AddLine(cursor + Vec2{spacing.x, 0.0f}, cursor + Vec2{content_width - spacing.x, 0.0f}, color_u32, 1.0f);
+        // Add spacing below + 1 pixel for the line width
+        cursor.y += spacing.y + 1.0f;
         window->DC.CursorPos = cursor;
     }
 } // namespace ImGui
