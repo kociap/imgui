@@ -2461,6 +2461,9 @@ const char* ImGui::GetStyleColorName(ImGuiCol idx)
     case ImGuiCol_collapsible_header_bg: return "collapsible_header_bg";
     case ImGuiCol_collapsible_header_bg_hovered: return "collapsible_header_bg_hovered";
     case ImGuiCol_collapsible_header_bg_active: return "collapsible_header_bg_active";
+    case ImGuiCol_button_bg: return "button_bg";
+    case ImGuiCol_button_bg_hovered: return "button_bg_hovered";
+    case ImGuiCol_button_bg_active: return "button_bg_active";
     case ImGuiCol_context_menu_separator: return "context_menu_separator";
     }
     IM_ASSERT(0);
