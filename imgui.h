@@ -230,6 +230,7 @@ namespace ImGui {
     bool begin_window_context_menu(u32 id);
     bool begin_window_context_menu(u32 id, Context_Menu_Style style);
     void end_context_menu();
+    void close_context_menu();
 
     struct Menu_Item_Options {
         bool disabled = false;

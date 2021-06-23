@@ -47,6 +47,10 @@ namespace ImGui {
         EndPopup();
     }
 
+    void close_context_menu() {
+        CloseCurrentPopup();
+    }
+
     // bool context_menu_item(u32 id, anton::String_View text, Menu_Item_Options item) {
     //     return false;
     // }
