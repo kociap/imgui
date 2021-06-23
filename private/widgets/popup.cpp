@@ -9,10 +9,14 @@ namespace ImGui {
         return begin_window_context_menu(id);
     }
 
+    bool begin_window_context_menu(Context_Menu_Style style) {
+        u32 const id = make_id("window_context"_sv);
+        return begin_window_context_menu(id, style);
+    }
+
     bool begin_window_context_menu(u32 const id) {
         ImGuiWindow* const window = GImGui->CurrentWindow;
         u32 const id_hash = hash_id(id, window->IDStack.back());
-        // No idea what this does
         KeepAliveID(id_hash);
 
         int mouse_button = ImGuiMouseButton_Right;
@@ -21,6 +25,22 @@ namespace ImGui {
         }
 
         return BeginPopupEx(id_hash, ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoSavedSettings);
+    }
+
+    bool begin_window_context_menu(u32 const id, Context_Menu_Style style) {
+        ImGuiWindow* const window = GImGui->CurrentWindow;
+        u32 const id_hash = hash_id(id, window->IDStack.back());
+        KeepAliveID(id_hash);
+
+        int mouse_button = ImGuiMouseButton_Right;
+        if(IsMouseReleased(mouse_button) && IsWindowHovered(ImGuiHoveredFlags_AllowWhenBlockedByPopup)) {
+            OpenPopupEx(id_hash);
+        }
+
+        PushStyleColor(ImGuiCol_PopupBg, style.background);
+        bool const opened = BeginPopupEx(id_hash, ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoSavedSettings);
+        PopStyleColor();
+        return opened;
     }
 
     void end_context_menu() {

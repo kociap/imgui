@@ -221,8 +221,14 @@ using ImVec4 = anton::math::Vec4;
 namespace ImGui {
     [[nodiscard]] u32 make_id(anton::String_View string);
 
+    struct Context_Menu_Style {
+        Vec4 background;
+    };
+
     bool begin_window_context_menu();
+    bool begin_window_context_menu(Context_Menu_Style style);
     bool begin_window_context_menu(u32 id);
+    bool begin_window_context_menu(u32 id, Context_Menu_Style style);
     void end_context_menu();
 
     struct Menu_Item_Options {
