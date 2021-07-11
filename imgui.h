@@ -251,6 +251,27 @@ namespace ImGui {
     void context_menu_separator();
     void context_menu_separator(Vec2 spacing, Vec4 color);
 
+    struct Selectable_Options {
+        bool selected = false;
+        bool disabled = false;
+    };
+
+    // selectable
+    // TODO: Description
+    // A selectable highlights when hovered, and can display another color when selected.
+    // Neighbors selectable extend their highlight bounds in order to leave no gap between them.
+    // This is so a series of selected Selectable appear contiguous.
+    //
+    // Parameters:
+    //      id - id of the widget.
+    //    text - text to display within the widget.
+    // options - options to modify the behaviour of the widget.
+    //
+    // Returns:
+    // true when the selectable is clicked. false otherwise.
+    //
+    bool selectable(u32 id, anton::String_View text, Selectable_Options options); 
+
     // Context creation and access
     // Each context create its own ImFontAtlas by default. You may instance one yourself and pass it to CreateContext() to share a font atlas between imgui contexts.
     // None of those functions is reliant on the current context.
